@@ -55,18 +55,6 @@
                     },
                     "defaultConfiguration": "production"
                 },
-                "serve": {
-                    "builder": "@angular/build:dev-server",
-                    "configurations": {
-                        "production": {
-                            "buildTarget": "frontend:build:production"
-                        },
-                        "development": {
-                            "buildTarget": "frontend:build:development"
-                        }
-                    },
-                    "defaultConfiguration": "development"
-                },
                 "test": {
                     "builder": "@angular/build:unit-test"
                 }
