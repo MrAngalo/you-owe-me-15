@@ -1,0 +1,19 @@
+repos:
+    - repo: local
+      hooks:
+          - id: prettier
+            name: prettier
+            entry: npx prettier --write --ignore-unknown
+            language: system
+            types_or: [ts, javascript, json, yaml, markdown, html, css, scss]
+          - id: eslint
+            name: eslint
+            entry: npx eslint
+            language: system
+            types_or: [ts, javascript]
+          - id: typecheck
+            name: typecheck
+            entry: npx tsc --noEmit
+            language: system
+            types_or: [ts]
+            pass_filenames: false
