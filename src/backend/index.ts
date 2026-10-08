@@ -18,7 +18,10 @@ app.use(express.static(WEB_DIR));
 // Fallback, any path not defined is routed here
 app.get("/{*path}", (req, res, next) => {
     // If path has extension, it is assumed to be a file. if not found, skip it and 404
-    if (path.extname(req.path)) return next();
+    if (path.extname(req.path)) {
+        return next();
+    }
+
     res.sendFile(path.join(WEB_DIR, "index.html"));
 });
 

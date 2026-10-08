@@ -7,5 +7,12 @@ export default defineConfig(
     { ignores: ["**/dist/", "**/node_modules/", "**/.angular/"] },
     js.configs.recommended,
     tseslint.configs.recommended,
-    prettier
+    prettier,
+    {
+        rules: {
+            curly: ["error", "all"],
+            "capitalized-comments": ["error", "always"],
+            "multiline-comment-style": ["error", "starred-block"]
+        }
+    }
 );
