@@ -1,8 +1,3 @@
 node_modules/
+dist/
 .env
-
-# build output: ignore everything in dist except dist/static (images, fonts, ...)
-/dist/*
-!/dist/static/
-# but ignore the Angular build inside it
-/dist/static/web/

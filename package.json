@@ -4,11 +4,16 @@
     "description": "",
     "main": "dist/backend/index.js",
     "scripts": {
-        "dev": "tsx watch src/backend/index.ts",
-        "build": "tsc",
+        "dev:backend": "npm run copy:static && tsx watch src/backend/index.ts",
+        "dev:frontend": "cd src/frontend && npx ng build --watch --configuration development",
+        "build": "npm run build:backend && npm run build:frontend && npm run copy:static",
+        "build:backend": "tsc",
+        "build:frontend": "cd src/frontend && npx ng build",
+        "copy:static": "node -e \"require('fs').cpSync('src/static','dist/static',{recursive:true})\"",
         "start": "node dist/backend/index.js",
         "lint": "eslint .",
-        "typecheck": "tsc --noEmit"
+        "typecheck": "tsc --noEmit",
+        "test:frontend": "cd src/frontend && npx ng test"
     },
     "repository": {
         "type": "git",
