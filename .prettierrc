@@ -1,4 +1,10 @@
 {
     "tabWidth": 4,
-    "trailingComma": "none"
+    "trailingComma": "none",
+    "overrides": [
+        {
+            "files": "src/frontend/**/*.html",
+            "options": { "parser": "angular" }
+        }
+    ]
 }

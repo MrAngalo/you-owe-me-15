@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 import prettier from "eslint-config-prettier";
 
 export default defineConfig(
-    { ignores: ["dist/", "node_modules/"] },
+    { ignores: ["**/dist/", "**/node_modules/", "**/.angular/"] },
     js.configs.recommended,
     tseslint.configs.recommended,
     prettier
