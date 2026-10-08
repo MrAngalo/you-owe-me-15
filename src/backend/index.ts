@@ -5,7 +5,7 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
 const STATIC_DIR = path.resolve(__dirname, "../../dist/static");
-const WEB_DIR = path.join(STATIC_DIR, "web");
+const WEB_DIR = path.resolve(__dirname, "../../dist/frontend");
 
 app.use(express.json());
 

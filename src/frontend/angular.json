@@ -19,7 +19,7 @@
                     "options": {
                         "browser": "src/main.ts",
                         "outputPath": {
-                            "base": "../../dist/static/web",
+                            "base": "../../dist/frontend",
                             "browser": ""
                         },
                         "tsConfig": "tsconfig.app.json",
