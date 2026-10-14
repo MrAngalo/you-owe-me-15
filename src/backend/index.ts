@@ -7,12 +7,16 @@ import path from "path";
 import * as schema from "./db/schema";
 
 const app = express();
-const PORT = 3000;
 
 const ROOT = path.resolve(__dirname, "../..");
+
+// Loads variables from .env into process.env
+process.loadEnvFile(path.join(ROOT, ".env"));
+
+const PORT = Number(process.env.PORT);
 const STATIC_DIR = path.join(ROOT, "dist/static");
 const WEB_DIR = path.join(ROOT, "dist/frontend");
-const DB_FILE = path.join(ROOT, "data/app.db");
+const DB_FILE = path.join(ROOT, process.env.DB_FILE!);
 const MIGRATIONS_DIR = path.join(ROOT, "drizzle");
 
 // The data folder is gitignored, so it does not exist on a fresh clone
