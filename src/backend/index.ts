@@ -12,6 +12,7 @@ const ROOT = path.resolve(__dirname, "../..");
 
 // Loads variables from .env into process.env
 process.loadEnvFile(path.join(ROOT, ".env"));
+console.log("[init] Loaded environment from .env");
 
 const PORT = Number(process.env.PORT);
 const STATIC_DIR = path.join(ROOT, "dist/static");
@@ -22,16 +23,21 @@ const MIGRATIONS_DIR = path.join(ROOT, "drizzle");
 // The data folder is gitignored, so it does not exist on a fresh clone
 fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
 
+console.log(`[init] Opening database...`);
+
 const sqlite = new Database(DB_FILE);
 // Write-ahead log: better read/write concurrency, creates .db-wal and .db-shm files
 sqlite.pragma("journal_mode = WAL");
 // SQLite does not enforce foreign keys unless this is on
 sqlite.pragma("foreign_keys = ON");
+console.log("[init] Database opened");
 
 const db = drizzle(sqlite, { schema });
 
 // Applies pending migrations from /drizzle. If it fails, throw and stop the server
+console.log(`[init] Running migrations...`);
 migrate(db, { migrationsFolder: MIGRATIONS_DIR });
+console.log("[init] Migrations complete");
 
 app.use(express.json());
 
@@ -52,5 +58,5 @@ app.get("/{*path}", (req, res, next) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server listening on http://localhost:${PORT}`);
+    console.log(`[init] Server listening on http://localhost:${PORT}`);
 });
