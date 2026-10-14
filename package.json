@@ -13,6 +13,9 @@
         "start": "node dist/backend/index.js",
         "lint": "eslint .",
         "typecheck": "tsc --noEmit",
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "drizzle-kit migrate",
+        "db:studio": "drizzle-kit studio",
         "test:frontend": "cd src/frontend && npx ng test"
     },
     "repository": {
@@ -28,12 +31,17 @@
     },
     "homepage": "https://github.com/MrAngalo/you-owe-me-15#readme",
     "dependencies": {
+        "bcryptjs": "^3.0.3",
+        "better-sqlite3": "^13.0.3",
+        "drizzle-orm": "^0.45.4",
         "express": "^5.2.1"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
+        "@types/better-sqlite3": "^9.6.0",
         "@types/express": "^5.0.6",
         "@types/node": "^26.6.4",
+        "drizzle-kit": "^0.31.11",
         "eslint": "^10.12.0",
         "eslint-config-prettier": "^10.1.8",
         "prettier": "^3.9.9",
