@@ -11,6 +11,12 @@ npm install
 cd src/frontend && npm install
 ```
 
+Create a local `.env` from the template and edit the values.
+
+```sh
+cp .env.example .env
+```
+
 ## Development
 
 Run both commands in separate terminals
