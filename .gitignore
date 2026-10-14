@@ -5,7 +5,8 @@ node_modules/
 # Build output
 dist/
 # Editor settings
-.vscode/
+.vscode/*
+!.vscode/tasks.json
 # SQLite database
 data/
 *.db

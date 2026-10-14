@@ -1,0 +1,35 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "dev:backend",
+            "type": "npm",
+            "script": "dev:backend",
+            "isBackground": true,
+            "problemMatcher": [],
+            "presentation": {
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "dev:frontend",
+            "type": "npm",
+            "script": "dev:frontend",
+            "isBackground": true,
+            "problemMatcher": [],
+            "presentation": {
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "dev",
+            "dependsOn": ["dev:backend", "dev:frontend"],
+            "dependsOrder": "parallel",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
