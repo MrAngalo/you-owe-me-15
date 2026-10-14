@@ -13,15 +13,10 @@ cd src/frontend && npm install
 
 ## Development
 
-Terminal 1: run Express on http://localhost:3000.
+Run both commands in separate terminals
 
 ```sh
 npm run dev:backend
-```
-
-Terminal 2: rebuild Angular on change.
-
-```sh
 npm run dev:frontend
 ```
 
@@ -30,4 +25,24 @@ npm run dev:frontend
 ```sh
 npm run build
 npm start
+```
+
+## Database
+
+After editing `src/backend/db/schema.ts`:
+
+```sh
+npm run db:generate
+```
+
+Apply migrations manually:
+
+```sh
+npm run db:migrate
+```
+
+Browse the database in the browser:
+
+```sh
+npm run db:studio
 ```

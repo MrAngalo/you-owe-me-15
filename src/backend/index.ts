@@ -1,11 +1,33 @@
+import Database from "better-sqlite3";
+import { drizzle } from "drizzle-orm/better-sqlite3";
+import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import express from "express";
+import fs from "fs";
 import path from "path";
+import * as schema from "./db/schema";
 
 const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = 3000;
 
-const STATIC_DIR = path.resolve(__dirname, "../../dist/static");
-const WEB_DIR = path.resolve(__dirname, "../../dist/frontend");
+const ROOT = path.resolve(__dirname, "../..");
+const STATIC_DIR = path.join(ROOT, "dist/static");
+const WEB_DIR = path.join(ROOT, "dist/frontend");
+const DB_FILE = path.join(ROOT, "data/app.db");
+const MIGRATIONS_DIR = path.join(ROOT, "drizzle");
+
+// The data folder is gitignored, so it does not exist on a fresh clone
+fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
+
+const sqlite = new Database(DB_FILE);
+// Write-ahead log: better read/write concurrency, creates .db-wal and .db-shm files
+sqlite.pragma("journal_mode = WAL");
+// SQLite does not enforce foreign keys unless this is on
+sqlite.pragma("foreign_keys = ON");
+
+const db = drizzle(sqlite, { schema });
+
+// Applies pending migrations from /drizzle. If it fails, throw and stop the server
+migrate(db, { migrationsFolder: MIGRATIONS_DIR });
 
 app.use(express.json());
 
