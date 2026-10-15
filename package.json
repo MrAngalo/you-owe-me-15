@@ -16,6 +16,7 @@
         "db:generate": "drizzle-kit generate",
         "db:migrate": "drizzle-kit migrate",
         "db:studio": "drizzle-kit studio",
+        "script:createsuperuser": "tsx src/backend/scripts/createsuperuser.ts",
         "test:frontend": "cd src/frontend && npx ng test"
     },
     "repository": {
