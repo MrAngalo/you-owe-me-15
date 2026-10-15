@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
     uuid: text("uuid")
@@ -8,5 +8,8 @@ export const users = sqliteTable("users", {
     username: text("username").notNull().unique(),
     email: text("email").notNull().unique(),
     // Uses bcrypt to store passwords
-    password: text("password").notNull()
+    password: text("password").notNull(),
+    superuser: integer("superuser", { mode: "boolean" })
+        .notNull()
+        .default(false)
 });
