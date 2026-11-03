@@ -22,14 +22,39 @@
             }
         },
         {
-            "label": "dev",
+            "label": "dev:stop",
+            "type": "shell",
+            "command": "echo ${input:terminateAll}",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "never",
+                "close": true
+            }
+        },
+        {
+            "label": "dev:start",
+            "hide": true,
             "dependsOn": ["dev:backend", "dev:frontend"],
             "dependsOrder": "parallel",
+            "problemMatcher": []
+        },
+        {
+            "label": "dev",
+            "dependsOn": ["dev:stop", "dev:start"],
+            "dependsOrder": "sequence",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "terminateAll",
+            "type": "command",
+            "command": "workbench.action.tasks.terminate",
+            "args": "terminateAll"
         }
     ]
 }
