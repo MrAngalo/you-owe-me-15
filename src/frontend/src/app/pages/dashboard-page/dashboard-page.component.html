@@ -5,5 +5,18 @@
         >
             Hello, {{ name }}!
         </h1>
+
+        <button
+            type="button"
+            class="btn-primary mt-6"
+            [disabled]="busy()"
+            (click)="signOut()"
+        >
+            @if (busy()) {
+                Signing out…
+            } @else {
+                Sign out
+            }
+        </button>
     }
 </div>
