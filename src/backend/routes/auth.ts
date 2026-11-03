@@ -1,12 +1,20 @@
 import bcrypt from "bcryptjs";
 import { createHash, randomBytes } from "crypto";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
-import { Router } from "express";
+import { CookieOptions, Router } from "express";
 import * as schema from "../db/schema";
 import { sessions, users } from "../db/schema";
 
 const SESSION_COOKIE = "session";
+
+// Clearing a cookie only works when these match the options it was set with
+const COOKIE_OPTIONS: CookieOptions = {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/"
+};
 
 const SESSION_DAYS = 7;
 const SESSION_MS = SESSION_DAYS * 24 * 60 * 60 * 1000;
@@ -22,6 +30,20 @@ const PASSWORD_PATTERN = /^[A-Za-z0-9!@#$%^&*]+$/;
 
 function hashToken(token: string): string {
     return createHash("sha256").update(token).digest("hex");
+}
+
+// Finds one cookie in a "name=value; other=value" Cookie header
+function readCookie(
+    header: string | undefined,
+    name: string
+): string | undefined {
+    for (const part of header?.split(";") ?? []) {
+        const [key, ...value] = part.trim().split("=");
+        if (key === name) {
+            return value.join("=");
+        }
+    }
+    return undefined;
 }
 
 export function createAuthRouter(
@@ -72,12 +94,22 @@ export function createAuthRouter(
             .run();
 
         res.cookie(SESSION_COOKIE, token, {
-            httpOnly: true,
-            sameSite: "lax",
-            secure: process.env.NODE_ENV === "production",
-            expires: expiresAt,
-            path: "/"
+            ...COOKIE_OPTIONS,
+            expires: expiresAt
         });
+        res.status(204).end();
+    });
+
+    // Signing out twice or without a session does not produce an error
+    router.post("/sign-out", (req, res) => {
+        const token = readCookie(req.headers.cookie, SESSION_COOKIE);
+        if (token) {
+            db.delete(sessions)
+                .where(eq(sessions.tokenHash, hashToken(token)))
+                .run();
+        }
+
+        res.clearCookie(SESSION_COOKIE, COOKIE_OPTIONS);
         res.status(204).end();
     });
 
