@@ -63,7 +63,7 @@
     .drawer-link {
         @apply -mx-3.5 my-0.5 block min-h-12 rounded-[14px] px-3.5 py-[13px] font-black
             transition-colors duration-120 hover:bg-ocean/5 dark:hover:bg-gold/7
-            aria-[current=page]:bg-ocean/8 aria-[current=page]:text-ocean
-            dark:aria-[current=page]:bg-gold/14 dark:aria-[current=page]:text-gold;
+            [&.active]:bg-ocean/8 [&.active]:text-ocean
+            dark:[&.active]:bg-gold/14 dark:[&.active]:text-gold;
     }
 }

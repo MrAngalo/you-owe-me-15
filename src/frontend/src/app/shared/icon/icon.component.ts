@@ -24,7 +24,6 @@ export type IconName =
     template: '',
     styleUrl: './icon.component.scss',
     host: {
-        'aria-hidden': 'true',
         '[style.--icon]': 'url()',
         '[style.color]': 'color()'
     }
