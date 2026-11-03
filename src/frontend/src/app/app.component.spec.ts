@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { App } from './app';
+import { AppComponent } from './app.component';
 
-describe('App', () => {
+describe('AppComponent', () => {
     beforeEach(async () => {
         // Needed because Jsdom has no matchMedia, so we have to fake it
         vi.stubGlobal(
@@ -14,7 +14,7 @@ describe('App', () => {
             }))
         );
         await TestBed.configureTestingModule({
-            imports: [App],
+            imports: [AppComponent],
             providers: [provideRouter([])]
         }).compileComponents();
     });
@@ -25,7 +25,7 @@ describe('App', () => {
     });
 
     it('should create the app', () => {
-        const fixture = TestBed.createComponent(App);
+        const fixture = TestBed.createComponent(AppComponent);
         const app = fixture.componentInstance;
         expect(app).toBeTruthy();
     });
