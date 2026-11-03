@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { createHash, randomBytes } from "crypto";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, gt, sql } from "drizzle-orm";
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { CookieOptions, Router } from "express";
 import * as schema from "../db/schema";
@@ -98,6 +98,30 @@ export function createAuthRouter(
             expires: expiresAt
         });
         res.status(204).end();
+    });
+
+    // Returns the signed-in user, or 401 when the session is missing or expired
+    router.get("/me", (req, res) => {
+        const token = readCookie(req.headers.cookie, SESSION_COOKIE);
+        const user = token
+            ? db
+                  .select({ username: users.username })
+                  .from(sessions)
+                  .innerJoin(users, eq(users.id, sessions.userId))
+                  .where(
+                      and(
+                          eq(sessions.tokenHash, hashToken(token)),
+                          gt(sessions.expiresAt, new Date())
+                      )
+                  )
+                  .get()
+            : undefined;
+
+        if (!user) {
+            res.status(401).json({ error: "Not signed in" });
+            return;
+        }
+        res.json(user);
     });
 
     // Signing out twice or without a session does not produce an error
