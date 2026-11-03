@@ -36,10 +36,10 @@
 
 /* Social icons */
 .social-link {
-    @apply grid size-18 place-items-center rounded-[22px] bg-ocean
+    @apply grid size-18 place-items-center rounded-[22px] bg-ocean text-cream
         shadow-[0_12px_24px_-10px_rgb(39_71_78/.5)]
         transition duration-120 hover:-translate-y-[3px]
         hover:shadow-[0_18px_30px_-12px_rgb(39_71_78/.6)]
-        dark:bg-gold dark:shadow-[0_12px_24px_-10px_rgb(0_0_0/.6)]
+        dark:bg-gold dark:text-midnight dark:shadow-[0_12px_24px_-10px_rgb(0_0_0/.6)]
         dark:hover:shadow-[0_12px_24px_-10px_rgb(0_0_0/.6)];
 }

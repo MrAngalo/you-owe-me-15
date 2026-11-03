@@ -5,13 +5,18 @@ export type IconName =
     | 'calc'
     | 'camera'
     | 'close'
+    | 'instagram'
     | 'itemized'
     | 'link'
     | 'menu'
+    | 'moon'
     | 'network'
     | 'payment'
     | 'percent'
-    | 'tag';
+    | 'sun'
+    | 'tag'
+    | 'tiktok'
+    | 'x';
 
 @Component({
     selector: 'app-icon',
