@@ -2,6 +2,6 @@
 
 @layer components {
     :host {
-        @apply inline-block flex-none bg-current mask-(--icon) mask-contain mask-center mask-no-repeat;
+        @apply block flex-none bg-current mask-(--icon) mask-contain mask-center mask-no-repeat;
     }
 }
