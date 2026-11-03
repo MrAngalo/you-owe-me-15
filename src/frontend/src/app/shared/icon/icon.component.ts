@@ -24,11 +24,13 @@ export type IconName =
     styleUrl: './icon.component.scss',
     host: {
         'aria-hidden': 'true',
-        '[style.--icon]': 'url()'
+        '[style.--icon]': 'url()',
+        '[style.color]': 'color()'
     }
 })
 export class IconComponent {
     readonly name = input.required<IconName>();
+    readonly color = input<string>();
     protected readonly url = computed(
         () => `url(images/icons/${this.name()}.svg)`
     );
