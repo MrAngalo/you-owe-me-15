@@ -24,5 +24,8 @@
         "tailwindcss": "^4.3.3",
         "typescript": "~6.0.2",
         "vitest": "^5.0.0"
+    },
+    "imports": {
+        "#styles": "./src/styles.css"
     }
 }
