@@ -27,11 +27,11 @@
 .feature-card {
     @apply rounded-[20px] bg-white/6 p-6 transition duration-160
         hover:-translate-y-0.5 hover:bg-white/10 dark:bg-white/4 dark:hover:bg-white/8;
+}
 
-    /* Icon on a tinted tile; content-box keeps the 48px icon size inside the padding. */
-    img {
-        @apply box-content rounded-[14px] bg-lime/16 p-2.5 dark:bg-leaf/16;
-    }
+/* Tinted tile around the feature icon; the icon takes the tile's text color. */
+.feature-icon {
+    @apply inline-grid rounded-[14px] bg-lime/16 p-2.5 text-lime dark:bg-leaf/16 dark:text-leaf;
 }
 
 /* Social icons */

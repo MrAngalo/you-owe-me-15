@@ -2,6 +2,7 @@ import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { filter, fromEvent } from 'rxjs';
+import { IconComponent } from '../../shared/icon/icon.component';
 import { ThemeService } from '../theme.service';
 
 // The `md` breakpoint, where the header nav replaces the menu button
@@ -9,7 +10,7 @@ const DESKTOP_QUERY = '(min-width: 768px)';
 
 @Component({
     selector: 'app-base-layout',
-    imports: [RouterLink, RouterLinkActive],
+    imports: [RouterLink, RouterLinkActive, IconComponent],
     templateUrl: './base-layout.component.html',
     styleUrl: './base-layout.component.scss',
     host: {

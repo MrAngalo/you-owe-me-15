@@ -1,0 +1,7 @@
+@reference "#styles";
+
+@layer components {
+    :host {
+        @apply inline-block flex-none bg-current mask-(--icon) mask-contain mask-center mask-no-repeat;
+    }
+}
