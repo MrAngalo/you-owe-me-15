@@ -25,6 +25,6 @@ export type IconName =
 export class IconComponent {
     readonly name = input.required<IconName>();
     protected readonly url = computed(
-        () => `url(images/icons/icon-${this.name()}.svg)`
+        () => `url(images/icons/${this.name()}.svg)`
     );
 }
