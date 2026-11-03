@@ -1,6 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 
 export type IconName =
+    | 'alert'
     | 'arrow-right'
     | 'calc'
     | 'camera'

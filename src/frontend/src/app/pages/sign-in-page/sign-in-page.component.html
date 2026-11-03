@@ -1,0 +1,114 @@
+<div class="mx-auto grid max-w-md gap-6 px-6 py-12 md:py-20">
+    <div>
+        <p
+            class="text-[13px] font-black tracking-[.12em] text-ocean uppercase dark:text-gold"
+        >
+            Account
+        </p>
+        <h1
+            class="mt-1.5 font-heading text-[clamp(2rem,4vw+1rem,2.75rem)] leading-[1.08] font-semibold text-green dark:text-leaf"
+        >
+            Welcome back
+        </h1>
+        <p class="mt-2 text-lg leading-[1.55] dark:text-frost/80">
+            Sign in to continue to your receipts and invitations.
+        </p>
+    </div>
+
+    <!-- SERVER ERRORS -->
+
+    <!-- Login failed, does not say which field was wrong to not leak user info -->
+    @if (problem() === "failed") {
+        <div class="banner bg-red/10 dark:bg-coral/12">
+            <app-icon
+                name="alert"
+                class="mt-px size-[22px] text-red dark:text-coral"
+            />
+            <p>
+                <b class="block">Incorrect email or password.</b> Try again, or
+                <a routerLink="/forgot-password" class="textlink"
+                    >reset your password</a
+                >.
+            </p>
+        </div>
+    }
+
+    <!-- The server did not respond -->
+    @if (problem() === "unavailable") {
+        <div class="banner bg-[#b7791f]/13 dark:bg-gold/12">
+            <app-icon
+                name="alert"
+                class="mt-px size-[22px] text-amber dark:text-gold"
+            />
+            <p>
+                <b class="block">We couldn't sign you in.</b> Something went
+                wrong on our end. Please try again later.
+            </p>
+        </div>
+    }
+
+    <!-- LOGIN FORM -->
+
+    <form
+        class="grid gap-5 rounded-3xl bg-white p-6 shadow-[0_1px_2px_rgb(39_71_78/.06),0_14px_32px_-12px_rgb(39_71_78/.22)] dark:bg-navy dark:shadow-[0_14px_32px_-12px_rgb(0_0_0/.55)]"
+        novalidate
+        [formGroup]="form"
+        (ngSubmit)="submit()"
+    >
+        <div class="grid gap-1.5">
+            <label for="email" class="font-extrabold">Email address</label>
+            <input
+                #emailInput
+                id="email"
+                type="email"
+                class="input"
+                autocomplete="email"
+                placeholder="email@example.com"
+                formControlName="email"
+                [class.invalid]="submitted() && form.controls.email.invalid"
+            />
+            @if (submitted() && form.controls.email.invalid) {
+                <p class="field-error">Enter a complete email address.</p>
+            }
+        </div>
+
+        <div class="grid gap-1.5">
+            <div class="flex items-baseline justify-between gap-3">
+                <label for="password" class="font-extrabold">Password</label>
+                <a routerLink="/forgot-password" class="textlink text-sm"
+                    >Forgot password?</a
+                >
+            </div>
+            <input
+                #passwordInput
+                id="password"
+                type="password"
+                class="input"
+                autocomplete="current-password"
+                formControlName="password"
+                [class.invalid]="submitted() && form.controls.password.invalid"
+            />
+            @if (submitted() && form.controls.password.invalid) {
+                <p class="field-error">Enter your password.</p>
+            }
+        </div>
+
+        <button
+            #submitButton
+            type="submit"
+            class="btn-primary w-full"
+            [disabled]="busy()"
+        >
+            @if (busy()) {
+                Signing in…
+            } @else {
+                Sign in
+            }
+        </button>
+    </form>
+
+    <p class="text-center">
+        New here?
+        <a routerLink="/register" class="textlink">Create an account</a>
+    </p>
+</div>

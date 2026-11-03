@@ -18,6 +18,8 @@
     --color-frost: #e8ecf1;
     --color-leaf: #6bbf59;
     --color-gold: #e8c547;
+    --color-coral: #ff8a87;
+    --color-amber: #8a5a12;
 
     --font-display: "Lilita One", cursive;
     --font-heading: Fredoka, sans-serif;
@@ -66,6 +68,7 @@
             hover:translate-y-0.5 hover:shadow-[0_4px_0_#024b12]
             active:translate-y-1.5 active:shadow-none
             dark:bg-leaf dark:text-midnight dark:shadow-[0_6px_0_#3f7d33]
-            dark:hover:shadow-[0_4px_0_#3f7d33] dark:active:shadow-none;
+            dark:hover:shadow-[0_4px_0_#3f7d33] dark:active:shadow-none
+            disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 disabled:shadow-none;
     }
 }
