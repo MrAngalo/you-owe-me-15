@@ -1,0 +1,69 @@
+@reference "#styles";
+
+/* This is for the scroll bar to not shift the page when the hamburger menu is open */
+::ng-deep :root {
+    scrollbar-gutter: stable;
+}
+
+::ng-deep :root:has(#site-menu:modal) {
+    overflow: hidden;
+}
+
+/* Same layer as Tailwind's components, so utilities in the template (e.g. md:hidden) still win over these */
+@layer components {
+    .iconbtn {
+        @apply grid size-12 place-items-center rounded-[14px] bg-[#eef5eb] text-2xl font-black text-teal
+            transition-colors duration-120 hover:bg-[#e1eedb]
+            dark:bg-frost/8 dark:text-frost dark:hover:bg-frost/16;
+    }
+
+    .brand-tile {
+        @apply grid size-[46px] flex-none place-items-center rounded-[14px] bg-cream
+            shadow-[0_6px_14px_-6px_rgb(0_0_0/.4)]
+            dark:bg-frost dark:shadow-[0_6px_14px_-6px_rgb(0_0_0/.7)];
+
+        img {
+            @apply size-8 translate-x-[6%] translate-y-[4%];
+        }
+    }
+
+    .brand-name {
+        @apply font-display leading-none tracking-[0.01em] text-lime dark:text-leaf;
+    }
+
+    .footer-link {
+        @apply inline-flex min-h-10 items-center text-lime underline-offset-4
+            hover:text-cream hover:underline dark:text-gold dark:hover:text-frost;
+    }
+
+    /* Pinned bottom right; tilts on hover */
+    .theme-toggle {
+        @apply fixed right-5 bottom-5 z-35 rounded-full bg-paper p-2
+            shadow-[0_12px_28px_-8px_rgb(39_71_78/.3)]
+            transition-transform duration-120 hover:-rotate-12 hover:scale-105
+            dark:bg-navy
+            dark:shadow-[0_12px_28px_-8px_rgb(0_0_0/.7),inset_0_0_0_1px_rgb(232_236_241/.08)];
+    }
+
+    /* Mobile menu: slides in from the right, backdrop fades in */
+    .drawer {
+        @apply fixed inset-y-0 right-0 left-auto m-0 h-full max-h-none max-w-none
+            w-[min(490px,calc(100%-min(110px,28vw)))]
+            overflow-y-auto border-0 bg-paper p-0 text-inherit
+            shadow-[-16px_0_38px_rgb(0_0_0/.2)] dark:bg-navy
+            translate-x-full open:translate-x-0 starting:open:translate-x-full
+            transition-[translate,display,overlay] transition-discrete duration-320 ease-in-out
+            backdrop:bg-[rgb(20_38_42/.56)] backdrop:opacity-0
+            open:backdrop:opacity-100 starting:open:backdrop:opacity-0
+            backdrop:transition-[opacity,display,overlay] backdrop:transition-discrete
+            backdrop:duration-320 backdrop:ease-in-out
+            motion-reduce:transition-none motion-reduce:backdrop:transition-none;
+    }
+
+    .drawer-link {
+        @apply -mx-3.5 my-0.5 block min-h-12 rounded-[14px] px-3.5 py-[13px] font-black
+            transition-colors duration-120 hover:bg-ocean/5 dark:hover:bg-gold/7
+            aria-[current=page]:bg-ocean/8 aria-[current=page]:text-ocean
+            dark:aria-[current=page]:bg-gold/14 dark:aria-[current=page]:text-gold;
+    }
+}

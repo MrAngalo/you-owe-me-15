@@ -1,0 +1,165 @@
+<!-- HEADER -->
+<header
+    class="sticky top-0 z-30 bg-green text-cream shadow-[0_10px_30px_-20px_rgba(39,71,78,.6)] dark:bg-navy dark:text-frost dark:shadow-[0_10px_30px_-20px_rgba(0,0,0,.8)]"
+>
+    <div
+        class="mx-auto flex h-20 max-w-6xl items-center justify-between gap-4 px-6"
+    >
+        <a routerLink="/" class="flex items-center gap-3 no-underline">
+            <span class="brand-tile"
+                ><img src="images/icons/brand-mark.svg" alt=""
+            /></span>
+            <span class="brand-name text-[26px]">You Owe Me 15</span>
+        </a>
+
+        <nav
+            aria-label="Main"
+            class="hidden items-center gap-7 font-bold md:flex"
+        >
+            <a href="#how-it-works" class="hover:text-lime dark:hover:text-gold"
+                >How it works</a
+            >
+            <a href="#features" class="hover:text-lime dark:hover:text-gold"
+                >Features</a
+            >
+            <a
+                routerLink="/sign-in"
+                routerLinkActive
+                ariaCurrentWhenActive="page"
+                [routerLinkActiveOptions]="{ exact: true }"
+                class="hover:text-lime dark:hover:text-gold"
+                >Sign in</a
+            >
+        </nav>
+
+        <button
+            type="button"
+            class="iconbtn bg-cream/14 text-cream hover:bg-cream/24 md:hidden dark:bg-frost/8 dark:text-frost dark:hover:bg-frost/16"
+            aria-label="Open menu"
+            aria-haspopup="dialog"
+            aria-controls="site-menu"
+            (click)="openMenu()"
+        >
+            ☰
+        </button>
+    </div>
+</header>
+
+<main class="flex-1">
+    <ng-content />
+</main>
+
+<!-- FOOTER -->
+<footer class="bg-green text-white dark:bg-midnight">
+    <div class="mx-auto grid max-w-6xl gap-8 px-6 py-10 sm:grid-cols-3">
+        <div>
+            <p class="flex items-center gap-3">
+                <span class="brand-tile size-10 rounded-xl [&_img]:size-7"
+                    ><img src="images/icons/brand-mark.svg" alt=""
+                /></span>
+                <span class="brand-name text-2xl">You Owe Me 15</span>
+            </p>
+        </div>
+        <nav aria-label="Footer">
+            <ul class="space-y-1 font-bold">
+                <li><a routerLink="/" class="footer-link">Home</a></li>
+                <li>
+                    <a href="#how-it-works" class="footer-link">How it works</a>
+                </li>
+                <li><a href="#features" class="footer-link">Features</a></li>
+            </ul>
+        </nav>
+        <div>
+            <ul class="flex flex-wrap gap-x-5 font-bold">
+                <li><a href="#" class="footer-link">Privacy</a></li>
+                <li><a href="#" class="footer-link">Accessibility</a></li>
+                <li><a href="#" class="footer-link">Contact</a></li>
+            </ul>
+            <p
+                class="mt-3 border-t border-lime/40 pt-3 text-sm text-white dark:border-leaf/40"
+            >
+                &copy; 2026 You Owe Me 15. All rights reserved.
+            </p>
+        </div>
+    </div>
+</footer>
+
+<!-- THEME TOGGLE: pinned bottom right; icon follows the current theme -->
+<button
+    type="button"
+    class="theme-toggle"
+    [attr.aria-pressed]="theme.isDark()"
+    aria-label="Dark mode"
+    (click)="theme.toggle()"
+>
+    <img src="images/icons/icon-sun.svg" alt="" class="h-10 w-10 dark:hidden" />
+    <img
+        src="images/icons/icon-moon.svg"
+        alt=""
+        class="hidden h-10 w-10 dark:block"
+    />
+</button>
+
+<!-- MOBILE HAMBURGER MENU -->
+<dialog
+    #drawer
+    id="site-menu"
+    class="drawer"
+    aria-labelledby="drawer-title"
+    (click)="onDrawerClick($event)"
+>
+    <div class="min-h-full p-7">
+        <button
+            type="button"
+            class="iconbtn"
+            aria-label="Close menu"
+            (click)="closeMenu()"
+        >
+            ×
+        </button>
+        <h2
+            id="drawer-title"
+            class="mt-5 font-heading text-3xl font-semibold text-green dark:text-leaf"
+        >
+            Menu
+        </h2>
+        <nav aria-label="Mobile" class="mt-3">
+            <a
+                routerLink="/"
+                routerLinkActive
+                ariaCurrentWhenActive="page"
+                [routerLinkActiveOptions]="{ exact: true }"
+                class="drawer-link"
+                (click)="closeMenu()"
+                >Home</a
+            >
+            <a href="#how-it-works" class="drawer-link" (click)="closeMenu()"
+                >How it works</a
+            >
+            <a href="#features" class="drawer-link" (click)="closeMenu()"
+                >Features</a
+            >
+            <a
+                routerLink="/register"
+                routerLinkActive
+                ariaCurrentWhenActive="page"
+                [routerLinkActiveOptions]="{ exact: true }"
+                class="drawer-link"
+                (click)="closeMenu()"
+                >Create account</a
+            >
+            <a
+                routerLink="/sign-in"
+                routerLinkActive
+                ariaCurrentWhenActive="page"
+                [routerLinkActiveOptions]="{ exact: true }"
+                class="drawer-link"
+                (click)="closeMenu()"
+                >Sign in</a
+            >
+            <a href="#" class="drawer-link" (click)="closeMenu()"
+                >Accessibility</a
+            >
+        </nav>
+    </div>
+</dialog>

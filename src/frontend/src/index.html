@@ -2,12 +2,46 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Frontend</title>
+        <title>You Owe Me 15</title>
         <base href="/" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" type="image/x-icon" href="favicon.ico" />
+        <link
+            rel="icon"
+            type="image/svg+xml"
+            href="images/icons/brand-mark.svg"
+        />
+
+        <!-- Fonts: Lilita One for the hero headline, Fredoka for headings, Nunito Sans for body text -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@500;600&family=Nunito+Sans:wght@400;600;700;800;900&display=swap"
+            rel="stylesheet"
+        />
+
+        <!-- This script tag loads the user's dark mode preference. It has 
+        been adapted from https://tailwindcss.com/docs/dark-mode#with-system-theme-support -->
+        <script>
+            // Calling anonymous function to avoid leaking variables in the console
+            (function () {
+                var saved = null;
+                // Wrapped in a try catch because user might disable local storage
+                try {
+                    // Tries to get user's theme from browser's storage
+                    saved = localStorage.getItem("yom15-theme");
+                } catch (e) {}
+                // Fallback on user's OS theme if no preference is set.
+                var dark = saved
+                    ? saved === "dark"
+                    : window.matchMedia("(prefers-color-scheme: dark)").matches;
+                // The "dark" class is used in tailwind to determine if dark mode is activated
+                document.documentElement.classList.toggle("dark", dark);
+            })();
+        </script>
     </head>
-    <body>
+    <body
+        class="bg-cream font-body text-teal antialiased dark:bg-midnight dark:text-frost"
+    >
         <app-root></app-root>
     </body>
 </html>

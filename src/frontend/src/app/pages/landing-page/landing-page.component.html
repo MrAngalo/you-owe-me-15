@@ -1,0 +1,274 @@
+<!-- HERO -->
+<section class="hero">
+    <div
+        class="mx-auto grid max-w-6xl items-center gap-10 px-6 py-12 md:grid-cols-[1fr_auto] md:py-20"
+    >
+        <div>
+            <span
+                class="inline-flex items-center rounded-full bg-ocean/[.08] px-3 py-1.5 text-sm font-black text-ocean dark:bg-gold/15 dark:text-gold"
+                >Splitting bills, simplified</span
+            >
+            <h1
+                class="mt-4 max-w-xl font-display text-5xl leading-[1.02] text-green sm:text-6xl lg:text-7xl dark:text-leaf"
+            >
+                Stop doing bill math in your head.
+            </h1>
+            <p
+                class="mt-4 max-w-lg text-lg leading-relaxed text-teal dark:text-frost/80"
+            >
+                Upload a receipt, invite your friends, and figure out what you
+                are owed.
+            </p>
+            <div class="mt-7 flex flex-wrap items-center gap-x-5 gap-y-4">
+                <a routerLink="/register" class="btn-primary max-sm:w-full"
+                    >Create your account →</a
+                >
+                <a
+                    routerLink="/sign-in"
+                    class="font-black text-ocean underline underline-offset-4 dark:text-gold"
+                    >Already have an account? Sign in</a
+                >
+            </div>
+        </div>
+        <img
+            src="images/screenshots/hero-app.png"
+            width="256"
+            height="523"
+            class="mx-auto w-56 drop-shadow-xl md:w-64"
+        />
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works" class="scroll-mt-20 bg-lime dark:bg-navy">
+    <div class="mx-auto max-w-6xl px-6 py-14 md:py-20">
+        <p
+            class="text-[13px] font-black tracking-[.12em] text-teal uppercase dark:text-leaf"
+        >
+            Three easy steps to
+        </p>
+        <h2
+            class="mt-2 font-heading text-4xl font-semibold text-green dark:text-leaf"
+        >
+            Split your bill with friends.
+        </h2>
+
+        <ol class="mt-14 grid gap-12 sm:grid-cols-3 sm:gap-6">
+            <li class="step-card">
+                <span class="step-number" aria-hidden="true">1</span>
+                <img
+                    src="images/screenshots/step-upload.png"
+                    width="189"
+                    height="288"
+                    class="mx-auto w-full max-w-[200px]"
+                />
+                <h3 class="mt-4 font-heading text-xl font-semibold">
+                    Scan a receipt
+                </h3>
+                <p class="mt-1">
+                    Take a photo or upload one from your gallery.
+                </p>
+            </li>
+            <li class="step-card">
+                <span class="step-number" aria-hidden="true">2</span>
+                <img
+                    src="images/screenshots/step-tag.png"
+                    width="187"
+                    height="287"
+                    class="mx-auto w-full max-w-[200px]"
+                />
+                <h3 class="mt-4 font-heading text-xl font-semibold">
+                    Invite friends
+                </h3>
+                <p class="mt-1">
+                    Send a link to your friends to join the breakdown.
+                </p>
+            </li>
+            <li class="step-card">
+                <span class="step-number" aria-hidden="true">3</span>
+                <img
+                    src="images/screenshots/step-split.png"
+                    width="189"
+                    height="287"
+                    class="mx-auto w-full max-w-[200px]"
+                />
+                <h3 class="mt-4 font-heading text-xl font-semibold">
+                    Claim items
+                </h3>
+                <p class="mt-1">
+                    Everyone picks their items and we calculate who owes who.
+                </p>
+            </li>
+        </ol>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="scroll-mt-20 bg-teal text-white dark:bg-midnight">
+    <div class="mx-auto max-w-6xl px-6 py-14 md:py-20">
+        <h2 class="font-heading text-4xl font-semibold">
+            Here are some features.
+        </h2>
+        <p class="mt-2 text-lg text-white/80">Simple. Fair. Less awkward.</p>
+
+        <ul class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <li class="feature-card">
+                <!-- TODO: replace with camera/scan icon -->
+                <img
+                    src="images/icons/icon-itemized.svg"
+                    class="h-12 w-12 dark:hidden"
+                />
+                <img
+                    src="images/icons/icon-itemized-dark.svg"
+                    class="hidden h-12 w-12 dark:block"
+                />
+                <h3 class="mt-3 font-heading text-xl font-semibold">
+                    Snap your receipt
+                </h3>
+                <p class="mt-1 text-white/80">
+                    Take a photo and we scan the items automatically.
+                </p>
+            </li>
+            <li class="feature-card">
+                <!-- TODO: replace with link icon -->
+                <img
+                    src="images/icons/icon-network.svg"
+                    class="h-12 w-12 dark:hidden"
+                />
+                <img
+                    src="images/icons/icon-network-dark.svg"
+                    class="hidden h-12 w-12 dark:block"
+                />
+                <h3 class="mt-3 font-heading text-xl font-semibold">
+                    Share with a link
+                </h3>
+                <p class="mt-1 text-white/80">
+                    Send one link to your friends, so they can start claiming.
+                </p>
+            </li>
+            <li class="feature-card">
+                <img
+                    src="images/icons/icon-network.svg"
+                    class="h-12 w-12 dark:hidden"
+                />
+                <img
+                    src="images/icons/icon-network-dark.svg"
+                    class="hidden h-12 w-12 dark:block"
+                />
+                <h3 class="mt-3 font-heading text-xl font-semibold">
+                    Live updates
+                </h3>
+                <p class="mt-1 text-white/80">
+                    Everyone joins a shared page to break the receipt faster.
+                </p>
+            </li>
+            <li class="feature-card">
+                <!-- TODO: replace with percentage icon -->
+                <img
+                    src="images/icons/icon-tag.svg"
+                    class="h-12 w-12 dark:hidden"
+                />
+                <img
+                    src="images/icons/icon-tag-dark.svg"
+                    class="hidden h-12 w-12 dark:block"
+                />
+                <h3 class="mt-3 font-heading text-xl font-semibold">
+                    Custom splits
+                </h3>
+                <p class="mt-1 text-white/80">
+                    Split any item by percentage, so you only pay what is fair.
+                </p>
+            </li>
+            <li class="feature-card">
+                <img
+                    src="images/icons/icon-calc.svg"
+                    class="h-12 w-12 dark:hidden"
+                />
+                <img
+                    src="images/icons/icon-calc-dark.svg"
+                    class="hidden h-12 w-12 dark:block"
+                />
+                <h3 class="mt-3 font-heading text-xl font-semibold">Summary</h3>
+                <p class="mt-1 text-white/80">
+                    One clear summary of every balance, down to the cent.
+                </p>
+            </li>
+            <li class="feature-card">
+                <!-- TODO: replace with payment/check icon -->
+                <img
+                    src="images/icons/icon-calc.svg"
+                    class="h-12 w-12 dark:hidden"
+                />
+                <img
+                    src="images/icons/icon-calc-dark.svg"
+                    class="hidden h-12 w-12 dark:block"
+                />
+                <h3 class="mt-3 font-heading text-xl font-semibold">
+                    Track payments
+                </h3>
+                <p class="mt-1 text-white/80">
+                    Track who has paid you, or send a friendly reminder to those
+                    who haven't.
+                </p>
+            </li>
+        </ul>
+    </div>
+</section>
+
+<!-- SOCIALS -->
+<section class="bg-cream dark:bg-navy">
+    <div class="mx-auto max-w-6xl px-6 py-14 text-center">
+        <h2
+            class="font-heading text-3xl font-semibold text-green dark:text-leaf"
+        >
+            Follow along
+        </h2>
+        <p class="mt-2">Tips, updates, and behind the scenes.</p>
+        <ul class="mt-6 flex justify-center gap-5">
+            <li>
+                <a
+                    href="#"
+                    class="social-link"
+                    aria-label="You Owe Me 15 on Instagram"
+                >
+                    <img
+                        src="images/icons/icon-instagram.svg"
+                        class="h-12 w-12 dark:hidden"
+                    />
+                    <img
+                        src="images/icons/icon-instagram-dark.svg"
+                        class="hidden h-12 w-12 dark:block"
+                    />
+                </a>
+            </li>
+            <li>
+                <a href="#" class="social-link" aria-label="You Owe Me 15 on X">
+                    <img
+                        src="images/icons/icon-x.svg"
+                        class="h-12 w-12 dark:hidden"
+                    />
+                    <img
+                        src="images/icons/icon-x-dark.svg"
+                        class="hidden h-12 w-12 dark:block"
+                    />
+                </a>
+            </li>
+            <li>
+                <a
+                    href="#"
+                    class="social-link"
+                    aria-label="You Owe Me 15 on TikTok"
+                >
+                    <img
+                        src="images/icons/icon-tiktok.svg"
+                        class="h-12 w-12 dark:hidden"
+                    />
+                    <img
+                        src="images/icons/icon-tiktok-dark.svg"
+                        class="hidden h-12 w-12 dark:block"
+                    />
+                </a>
+            </li>
+        </ul>
+    </div>
+</section>

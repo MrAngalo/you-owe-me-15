@@ -1,0 +1,45 @@
+@reference "#styles";
+
+/* Hero: lime spot behind the screenshot in light mode, navy spot on a midnight band in dark. */
+.hero {
+    @apply bg-[radial-gradient(circle_at_88%_45%,#e7f9b8_0_22%,transparent_23%)]
+        max-md:bg-position-[0_32%]
+        dark:bg-midnight dark:bg-[radial-gradient(circle_at_88%_45%,#1c2633_0_22%,transparent_23%)];
+}
+
+/* How-it-works step cards with the number badge overlapping the top edge. */
+.step-card {
+    @apply relative rounded-3xl bg-white px-[18px] pt-12 pb-6 text-center
+        shadow-[0_1px_2px_rgb(39_71_78/.06),0_14px_32px_-12px_rgb(39_71_78/.22)]
+        transition duration-160 hover:-translate-y-1
+        hover:shadow-[0_1px_2px_rgb(39_71_78/.06),0_22px_40px_-14px_rgb(31_111_178/.5)]
+        dark:bg-midnight dark:shadow-[0_14px_32px_-12px_rgb(0_0_0/.55)]
+        dark:hover:shadow-[0_22px_40px_-14px_rgb(232_197_71/.3)];
+}
+/* A ring in the section color (lime; navy in dark mode) makes the badge look cut out of the card edge. */
+.step-number {
+    @apply absolute top-0 left-1/2 grid size-15 -translate-1/2 place-items-center rounded-full
+        bg-ocean font-heading text-[1.85rem] font-semibold text-cream
+        ring-6 ring-lime shadow-[0_8px_18px_-6px_rgb(39_71_78/.4)]
+        dark:bg-gold dark:text-midnight dark:ring-navy dark:shadow-[0_8px_18px_-6px_rgb(0_0_0/.6)];
+}
+
+.feature-card {
+    @apply rounded-[20px] bg-white/6 p-6 transition duration-160
+        hover:-translate-y-0.5 hover:bg-white/10 dark:bg-white/4 dark:hover:bg-white/8;
+
+    /* Icon on a tinted tile; content-box keeps the 48px icon size inside the padding. */
+    img {
+        @apply box-content rounded-[14px] bg-lime/16 p-2.5 dark:bg-leaf/16;
+    }
+}
+
+/* Social icons */
+.social-link {
+    @apply grid size-18 place-items-center rounded-[22px] bg-ocean
+        shadow-[0_12px_24px_-10px_rgb(39_71_78/.5)]
+        transition duration-120 hover:-translate-y-[3px]
+        hover:shadow-[0_18px_30px_-12px_rgb(39_71_78/.6)]
+        dark:bg-gold dark:shadow-[0_12px_24px_-10px_rgb(0_0_0/.6)]
+        dark:hover:shadow-[0_12px_24px_-10px_rgb(0_0_0/.6)];
+}

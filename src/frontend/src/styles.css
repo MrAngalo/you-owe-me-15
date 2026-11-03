@@ -1,1 +1,71 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss" source("./");
+
+/* Class-based dark mode: the theme is set by the `dark` class on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --color-green: #036d19;
+    --color-lime: #9bc53d;
+    --color-teal: #27474e;
+    --color-red: #c3423f;
+    --color-ocean: #1f6fb2;
+    --color-cream: #faf9f6;
+    --color-paper: #fffefa;
+    --color-muted: #647a80;
+    --color-line: #d9e2dc;
+    --color-midnight: #121821;
+    --color-navy: #1c2633;
+    --color-frost: #e8ecf1;
+    --color-leaf: #6bbf59;
+    --color-gold: #e8c547;
+
+    --font-display: "Lilita One", cursive;
+    --font-heading: Fredoka, sans-serif;
+    --font-body: "Nunito Sans", ui-rounded, Arial, sans-serif;
+}
+
+@layer base {
+    button:not(:disabled),
+    [role="button"]:not(:disabled) {
+        cursor: pointer;
+    }
+
+    .dark {
+        color-scheme: dark;
+    }
+
+    /* Stop shrinking the layout below 400px. */
+    html {
+        @apply min-w-[400px] motion-safe:scroll-smooth;
+    }
+    body {
+        @apply motion-safe:transition-colors motion-safe:duration-200;
+    }
+
+    ::selection {
+        background: var(--color-ocean);
+        color: var(--color-cream);
+    }
+    .dark ::selection {
+        background: var(--color-gold);
+        color: var(--color-midnight);
+    }
+
+    :focus-visible {
+        @apply outline-4 outline-offset-3 outline-ocean shadow-[0_0_0_2px_#fff];
+    }
+    .dark :focus-visible {
+        @apply outline-gold shadow-[0_0_0_2px_var(--color-midnight)];
+    }
+}
+
+@layer components {
+    .btn-primary {
+        @apply inline-flex min-h-12 items-center justify-center rounded-full bg-green px-[22px] font-black text-white
+            shadow-[0_6px_0_#024b12] transition-[translate,box-shadow] duration-120
+            hover:translate-y-0.5 hover:shadow-[0_4px_0_#024b12]
+            active:translate-y-1.5 active:shadow-none
+            dark:bg-leaf dark:text-midnight dark:shadow-[0_6px_0_#3f7d33]
+            dark:hover:shadow-[0_4px_0_#3f7d33] dark:active:shadow-none;
+    }
+}
