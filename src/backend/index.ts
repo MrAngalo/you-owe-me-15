@@ -5,6 +5,7 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 import * as schema from "./db/schema";
+import { createAuthRouter } from "./routes/auth";
 
 const app = express();
 
@@ -40,6 +41,8 @@ migrate(db, { migrationsFolder: MIGRATIONS_DIR });
 console.log("[init] Migrations complete");
 
 app.use(express.json());
+
+app.use("/api/auth", createAuthRouter(db));
 
 // Allows static files (images, fonts, icons) to be fetched under root
 app.use(express.static(STATIC_DIR));

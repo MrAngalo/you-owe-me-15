@@ -13,3 +13,14 @@ export const users = sqliteTable("users", {
         .notNull()
         .default(false)
 });
+
+export const sessions = sqliteTable("sessions", {
+    tokenHash: text("token_hash").primaryKey(),
+    userId: text("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date()),
+    expiresAt: integer("expires_at", { mode: "timestamp" }).notNull()
+});

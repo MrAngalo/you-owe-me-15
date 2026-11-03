@@ -15,6 +15,13 @@
       "when": 1792092164341,
       "tag": "0001_absurd_grey_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793745665220,
+      "tag": "0002_tranquil_spiral",
+      "breakpoints": true
     }
   ]
 }
