@@ -20,6 +20,9 @@ import { EMAIL_PATTERN } from '../../../shared/validation';
 // "unavailable": the server could not answer
 type ForgotPasswordProblem = 'unavailable';
 
+// Set by the page that redirected here. "reset-invalid": the reset link was invalid or expired
+type ForgotPasswordNotice = 'reset-invalid';
+
 @Component({
     selector: 'app-forgot-password-page',
     imports: [ReactiveFormsModule, RouterLink, IconComponent],
@@ -40,6 +43,11 @@ export class ForgotPasswordPageComponent {
     protected readonly busy = signal(false);
     protected readonly problem = signal<ForgotPasswordProblem | null>(null);
 
+    // Read from the navigation state
+    protected readonly notice = signal<ForgotPasswordNotice | null>(
+        this.router.currentNavigation()?.extras.state?.['notice'] ?? null
+    );
+
     private readonly emailInput =
         viewChild.required<ElementRef<HTMLInputElement>>('emailInput');
     private readonly submitButton =
@@ -51,6 +59,7 @@ export class ForgotPasswordPageComponent {
         }
         this.submitted.set(true);
         this.problem.set(null);
+        this.notice.set(null);
 
         if (this.form.controls.email.invalid) {
             this.emailInput().nativeElement.focus();
