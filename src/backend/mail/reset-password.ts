@@ -19,7 +19,9 @@ export async function sendResetPasswordEmail(
     user: ResetPasswordUser,
     token: string
 ): Promise<void> {
-    const buttonUrl = `https://youoweme15.com/reset-password?token=${token}`;
+    const url = new URL("/reset-password", process.env.APP_URL);
+    url.searchParams.set("token", token);
+    const buttonUrl = url.href;
 
     await mailer.transporter.sendMail({
         from: process.env.MAIL_FROM,
