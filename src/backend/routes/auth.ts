@@ -186,13 +186,13 @@ export function createAuthRouter(
         }
 
         const user = db
-            .select({ email: users.email })
+            .select({ username: users.username, email: users.email })
             .from(users)
             .where(sql`lower(${users.email}) = ${email.trim().toLowerCase()}`)
             .get();
 
         if (user) {
-            sendResetPasswordEmail(mailer, user.email).catch((error: Error) =>
+            sendResetPasswordEmail(mailer, user).catch((error: Error) =>
                 console.warn(
                     `[mail] WARNING: Could not send reset password email: ${error.message}`
                 )

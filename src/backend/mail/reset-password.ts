@@ -2,37 +2,29 @@ import path from "path";
 import nunjucks from "nunjucks";
 import { Mailer } from "./mailer";
 
-const templates = new nunjucks.Environment(
-    new nunjucks.FileSystemLoader(path.join(__dirname, "templates")),
-    { autoescape: true }
-);
+const loader = new nunjucks.FileSystemLoader(path.join(__dirname, "templates"));
 
-// Shown by clients that do not display HTML, and helps keep the email out of spam
-const TEXT = `Reset your password
+const htmlTemplates = new nunjucks.Environment(loader, { autoescape: true });
 
-Hi alex_m,
+// Plain text is not HTML, so escaping would show "&lt;" instead of "<"
+const textTemplates = new nunjucks.Environment(loader, { autoescape: false });
 
-We got a request to reset the password for your account.
-Open this link to choose a new password:
-https://youoweme15.com/reset-password
-
-This link expires in 1 hour. If you didn't ask for this, you can ignore this email.
-Your password won't change unless you use the link above.
-
-© 2026 You Owe Me 15. All rights reserved.
-`;
+export interface ResetPasswordUser {
+    username: string;
+    email: string;
+}
 
 export async function sendResetPasswordEmail(
     mailer: Mailer,
-    to: string
+    user: ResetPasswordUser
 ): Promise<void> {
+    const buttonUrl = "https://youoweme15.com/reset-password";
+
     await mailer.transporter.sendMail({
         from: process.env.MAIL_FROM,
-        to,
+        to: user.email,
         subject: "Reset your password",
-        html: templates.render("reset-password.html", {
-            buttonUrl: "https://youoweme15.com/reset-password"
-        }),
-        text: TEXT
+        html: htmlTemplates.render("reset-password.html", { user, buttonUrl }),
+        text: textTemplates.render("reset-password.txt", { user, buttonUrl })
     });
 }
