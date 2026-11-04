@@ -1,11 +1,10 @@
-import fs from "fs";
 import path from "path";
+import nunjucks from "nunjucks";
 import { Mailer } from "./mailer";
 
-// Read once at startup. Everything in it is hard coded for now
-const HTML = fs.readFileSync(
-    path.join(__dirname, "templates/reset-password.html"),
-    "utf8"
+const templates = new nunjucks.Environment(
+    new nunjucks.FileSystemLoader(path.join(__dirname, "templates")),
+    { autoescape: true }
 );
 
 // Shown by clients that do not display HTML, and helps keep the email out of spam
@@ -31,7 +30,9 @@ export async function sendResetPasswordEmail(
         from: process.env.MAIL_FROM,
         to,
         subject: "Reset your password",
-        html: HTML,
+        html: templates.render("reset-password.html", {
+            buttonUrl: "https://youoweme15.com/reset-password"
+        }),
         text: TEXT
     });
 }
