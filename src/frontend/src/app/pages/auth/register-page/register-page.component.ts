@@ -92,7 +92,7 @@ export class RegisterPageComponent {
         this.auth.register(this.form.getRawValue()).subscribe({
             next: () =>
                 this.router.navigateByUrl('/sign-in', {
-                    state: { registered: true }
+                    state: { notice: 'registered' }
                 }),
             error: (error: HttpErrorResponse) => this.onError(error)
         });

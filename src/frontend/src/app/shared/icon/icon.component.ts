@@ -10,6 +10,7 @@ export type IconName =
     | 'instagram'
     | 'itemized'
     | 'link'
+    | 'mail'
     | 'menu'
     | 'moon'
     | 'network'

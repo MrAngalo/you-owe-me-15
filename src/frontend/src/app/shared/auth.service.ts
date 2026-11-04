@@ -13,6 +13,10 @@ export interface RegisterRequest {
     password: string;
 }
 
+export interface ForgotPasswordRequest {
+    email: string;
+}
+
 export interface CurrentUser {
     username: string;
 }
@@ -28,6 +32,11 @@ export class AuthService {
     // Fails with a 409 when the username is taken. Does not sign the user in
     register(account: RegisterRequest): Observable<void> {
         return this.http.post<void>('/api/auth/register', account);
+    }
+
+    // Same answer whether or not an account uses the email
+    forgotPassword(request: ForgotPasswordRequest): Observable<void> {
+        return this.http.post<void>('/api/auth/forgot-password', request);
     }
 
     // Succeeds even when nobody is signed in

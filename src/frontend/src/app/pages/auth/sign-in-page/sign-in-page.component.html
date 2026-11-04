@@ -7,8 +7,10 @@
         </p>
     </div>
 
-    <!-- REGISTRATION SUCCESS -->
-    @if (registered()) {
+    <!-- NOTICES FROM OTHER PAGES -->
+
+    <!-- Redirected from the register page -->
+    @if (notice() === "registered") {
         <div class="banner bg-green/9 dark:bg-leaf/12">
             <app-icon
                 name="check"
@@ -17,6 +19,20 @@
             <p>
                 <b class="block">Check your email.</b> After you verify your
                 account. Sign in with your email and password below.
+            </p>
+        </div>
+    }
+
+    <!-- Redirected from the forgot password page. -->
+    @if (notice() === "reset-requested") {
+        <div class="banner bg-ocean/8 dark:bg-gold/10">
+            <app-icon
+                name="mail"
+                class="mt-px size-[22px] text-ocean dark:text-gold"
+            />
+            <p>
+                <b class="block">Check your email.</b> If that address has an
+                account, we sent a link to reset your password.
             </p>
         </div>
     }

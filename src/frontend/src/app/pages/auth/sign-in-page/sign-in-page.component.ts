@@ -21,6 +21,9 @@ import { EMAIL_PATTERN } from '../../../shared/validation';
 // "failed": wrong credentials, "unavailable": the server could not answer
 type SignInProblem = 'failed' | 'unavailable';
 
+// Set by the page that redirected here. "registered": account created, "reset-requested": reset link asked for
+type SignInNotice = 'registered' | 'reset-requested';
+
 @Component({
     selector: 'app-sign-in-page',
     imports: [ReactiveFormsModule, RouterLink, IconComponent],
@@ -42,9 +45,9 @@ export class SignInPageComponent {
     protected readonly busy = signal(false);
     protected readonly problem = signal<SignInProblem | null>(null);
 
-    // Set by the register page when it redirects here. Not kept on reload
-    protected readonly registered = signal(
-        this.router.currentNavigation()?.extras.state?.['registered'] === true
+    // Read from the navigation state
+    protected readonly notice = signal<SignInNotice | null>(
+        this.router.currentNavigation()?.extras.state?.['notice'] ?? null
     );
 
     private readonly emailInput =
@@ -60,7 +63,7 @@ export class SignInPageComponent {
         }
         this.submitted.set(true);
         this.problem.set(null);
-        this.registered.set(false);
+        this.notice.set(null);
 
         const { email, password } = this.form.controls;
         if (email.invalid) {

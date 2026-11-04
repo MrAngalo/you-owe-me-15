@@ -42,6 +42,9 @@
             @apply border-red bg-[#fff7f6] dark:border-coral dark:bg-coral/6;
         }
     }
+    .hint {
+        @apply text-[.9375rem] text-muted dark:text-frost/65;
+    }
     .field-error {
         @apply text-[.9375rem] font-extrabold text-red dark:text-coral;
     }
