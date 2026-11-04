@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
     Component,
@@ -42,6 +43,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
 export class ResetPasswordPageComponent {
     private readonly auth = inject(AuthService);
     private readonly router = inject(Router);
+    private readonly location = inject(Location);
     private readonly injector = inject(Injector);
 
     // From the ?token= in the email link
@@ -89,7 +91,11 @@ export class ResetPasswordPageComponent {
             .verifyResetToken(this.token)
             .pipe(takeUntilDestroyed())
             .subscribe({
-                next: () => this.verified.set(true),
+                next: () => {
+                    // Keeps the token out of the address bar and history
+                    this.location.replaceState('/reset-password');
+                    this.verified.set(true);
+                },
                 error: (error: HttpErrorResponse) => {
                     if (error.status === 400) {
                         this.redirectInvalid();
