@@ -5,6 +5,8 @@ import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { CookieOptions, Router } from "express";
 import * as schema from "../db/schema";
 import { sessions, users } from "../db/schema";
+import { Mailer } from "../mail/mailer";
+import { sendResetPasswordEmail } from "../mail/reset-password";
 
 const SESSION_COOKIE = "session";
 
@@ -54,7 +56,8 @@ function readCookie(
 }
 
 export function createAuthRouter(
-    db: BetterSQLite3Database<typeof schema>
+    db: BetterSQLite3Database<typeof schema>,
+    mailer: Mailer
 ): Router {
     const router = Router();
 
@@ -159,6 +162,41 @@ export function createAuthRouter(
             db.insert(users)
                 .values({ username, email: normalizedEmail, password: hash })
                 .run();
+        }
+
+        res.status(204).end();
+    });
+
+    /*
+     * Emails reset instructions when an account uses the address. The answer is the
+     * same either way, and the email is sent in the background so the response time
+     * does not reveal whether the account exists
+     */
+    router.post("/forgot-password", (req, res) => {
+        const { email } = req.body ?? {};
+        if (typeof email !== "string" || !EMAIL_PATTERN.test(email.trim())) {
+            res.status(400).json({ error: "Email is invalid" });
+            return;
+        }
+
+        // Checked before the lookup, so this answer does not reveal whether the account exists
+        if (!mailer.enabled) {
+            res.status(503).json({ error: "Email is unavailable" });
+            return;
+        }
+
+        const user = db
+            .select({ email: users.email })
+            .from(users)
+            .where(sql`lower(${users.email}) = ${email.trim().toLowerCase()}`)
+            .get();
+
+        if (user) {
+            sendResetPasswordEmail(mailer, user.email).catch((error: Error) =>
+                console.warn(
+                    `[mail] WARNING: Could not send reset password email: ${error.message}`
+                )
+            );
         }
 
         res.status(204).end();

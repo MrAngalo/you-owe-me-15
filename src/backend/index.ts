@@ -59,7 +59,7 @@ mailer.transporter
 
 app.use(express.json());
 
-app.use("/api/auth", createAuthRouter(db));
+app.use("/api/auth", createAuthRouter(db, mailer));
 
 // Allows static files (images, fonts, icons) to be fetched under root
 app.use(express.static(STATIC_DIR));
