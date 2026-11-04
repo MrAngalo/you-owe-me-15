@@ -243,6 +243,32 @@ export function createAuthRouter(
         res.status(204).end();
     });
 
+    // Lets the reset password page check its link before showing the form
+    router.post("/reset-password/verify", (req, res) => {
+        const { token } = req.body ?? {};
+        if (typeof token !== "string" || !token) {
+            res.status(400).json({ error: "Reset link is invalid or expired" });
+            return;
+        }
+
+        const reset = db
+            .select({ userId: passwordResets.userId })
+            .from(passwordResets)
+            .where(
+                and(
+                    eq(passwordResets.tokenHash, hashToken(token)),
+                    gt(passwordResets.expiresAt, new Date())
+                )
+            )
+            .get();
+
+        if (!reset) {
+            res.status(400).json({ error: "Reset link is invalid or expired" });
+            return;
+        }
+        res.status(204).end();
+    });
+
     // Returns the signed-in user, or 401 when the session is missing or expired
     router.get("/me", (req, res) => {
         const token = readCookie(req.headers.cookie, SESSION_COOKIE);
