@@ -3,6 +3,7 @@ import { DashboardPageComponent } from './pages/dashboard-page/dashboard-page.co
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { ForgotPasswordPageComponent } from './pages/auth/forgot-password-page/forgot-password-page.component';
 import { RegisterPageComponent } from './pages/auth/register-page/register-page.component';
+import { ResetPasswordPageComponent } from './pages/auth/reset-password-page/reset-password-page.component';
 import { SignInPageComponent } from './pages/auth/sign-in-page/sign-in-page.component';
 
 export const routes: Routes = [
@@ -21,6 +22,11 @@ export const routes: Routes = [
         path: 'forgot-password',
         component: ForgotPasswordPageComponent,
         title: 'Forgot password - You Owe Me 15'
+    },
+    {
+        path: 'reset-password',
+        component: ResetPasswordPageComponent,
+        title: 'Reset password - You Owe Me 15'
     },
     {
         path: 'dashboard',
