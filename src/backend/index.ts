@@ -5,6 +5,7 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 import * as schema from "./db/schema";
+import { createMailer } from "./mail/mailer";
 import { createAuthRouter } from "./routes/auth";
 
 const app = express();
@@ -39,6 +40,22 @@ const db = drizzle(sqlite, { schema });
 console.log(`[init] Running migrations...`);
 migrate(db, { migrationsFolder: MIGRATIONS_DIR });
 console.log("[init] Migrations complete");
+
+const mailer = createMailer();
+
+// Runs in the background, the server still starts but emails will fail to send
+console.log("[init] Verifying SMTP connection...");
+mailer.transporter
+    .verify()
+    .then(() => {
+        mailer.enabled = true;
+        console.log("[init] SMTP connection verified");
+    })
+    .catch((error: Error) =>
+        console.warn(
+            `[init] WARNING: Could not connect to SMTP server: ${error.message}`
+        )
+    );
 
 app.use(express.json());
 
