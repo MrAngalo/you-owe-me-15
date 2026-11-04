@@ -23,11 +23,18 @@ export async function sendResetPasswordEmail(
     url.searchParams.set("token", token);
     const buttonUrl = url.href;
 
+    // Without the trailing slash, since the templates add "/img/..."
+    const assetsUrl = process.env.MAIL_ASSETS_URL?.replace(/\/+$/, "");
+
     await mailer.transporter.sendMail({
         from: process.env.MAIL_FROM,
         to: user.email,
         subject: "Reset your password",
-        html: htmlTemplates.render("reset-password.html", { user, buttonUrl }),
+        html: htmlTemplates.render("reset-password.html", {
+            user,
+            buttonUrl,
+            assetsUrl
+        }),
         text: textTemplates.render("reset-password.txt", { user, buttonUrl })
     });
 }
