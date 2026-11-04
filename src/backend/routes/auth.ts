@@ -269,6 +269,60 @@ export function createAuthRouter(
         res.status(204).end();
     });
 
+    /*
+     * Sets a new password from a reset link. Every reset link of the user stops working,
+     * and every session is signed out, so anyone else using the account loses access
+     */
+    router.post("/reset-password", async (req, res) => {
+        const { token, password } = req.body ?? {};
+        if (typeof token !== "string" || !token) {
+            res.status(400).json({ error: "Reset link is invalid or expired" });
+            return;
+        }
+        if (
+            typeof password !== "string" ||
+            password.length < PASSWORD_MIN_LENGTH ||
+            !PASSWORD_PATTERN.test(password)
+        ) {
+            res.status(400).json({
+                error: `Password must be at least ${PASSWORD_MIN_LENGTH} letters, numbers or !@#$%^&*`
+            });
+            return;
+        }
+
+        const hash = await bcrypt.hash(password, 10);
+
+        // No await from here on, so the link cannot be used twice by requests at the same time
+        const reset = db
+            .select({ userId: passwordResets.userId })
+            .from(passwordResets)
+            .where(
+                and(
+                    eq(passwordResets.tokenHash, hashToken(token)),
+                    gt(passwordResets.expiresAt, new Date())
+                )
+            )
+            .get();
+
+        if (!reset) {
+            res.status(400).json({ error: "Reset link is invalid or expired" });
+            return;
+        }
+
+        db.transaction((tx) => {
+            tx.update(users)
+                .set({ password: hash })
+                .where(eq(users.id, reset.userId))
+                .run();
+            tx.delete(passwordResets)
+                .where(eq(passwordResets.userId, reset.userId))
+                .run();
+            tx.delete(sessions).where(eq(sessions.userId, reset.userId)).run();
+        });
+
+        res.status(204).end();
+    });
+
     // Returns the signed-in user, or 401 when the session is missing or expired
     router.get("/me", (req, res) => {
         const token = readCookie(req.headers.cookie, SESSION_COOKIE);
