@@ -27,6 +27,13 @@ const DUMMY_HASH = bcrypt.hashSync("dummy-password", 10);
 
 // Letters, numbers and !@#$%^&* only. Also rejects an empty password
 const PASSWORD_PATTERN = /^[A-Za-z0-9!@#$%^&*]+$/;
+const PASSWORD_MIN_LENGTH = 8;
+
+// 3 to 24 letters, numbers or underscores
+const USERNAME_PATTERN = /^\w{3,24}$/;
+
+// Matches email@example.com, with a top-level domain of at least two characters
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function hashToken(token: string): string {
     return createHash("sha256").update(token).digest("hex");
@@ -97,6 +104,63 @@ export function createAuthRouter(
             ...COOKIE_OPTIONS,
             expires: expiresAt
         });
+        res.status(204).end();
+    });
+
+    /*
+     * Creates an account without signing in. A taken username gets a 409, but a taken
+     * email gets the same 204 as a new account, so the answer does not reveal which
+     * emails are registered
+     */
+    router.post("/register", async (req, res) => {
+        const { username, email, password } = req.body ?? {};
+        if (typeof username !== "string" || !USERNAME_PATTERN.test(username)) {
+            res.status(400).json({
+                error: "Username must be 3 to 24 letters, numbers or underscores"
+            });
+            return;
+        }
+        if (typeof email !== "string" || !EMAIL_PATTERN.test(email.trim())) {
+            res.status(400).json({ error: "Email is invalid" });
+            return;
+        }
+        if (
+            typeof password !== "string" ||
+            password.length < PASSWORD_MIN_LENGTH ||
+            !PASSWORD_PATTERN.test(password)
+        ) {
+            res.status(400).json({
+                error: `Password must be at least ${PASSWORD_MIN_LENGTH} letters, numbers or !@#$%^&*`
+            });
+            return;
+        }
+
+        // Hashed before any lookup, so a taken email takes as long to answer as a new one
+        const hash = await bcrypt.hash(password, 10);
+        const normalizedEmail = email.trim().toLowerCase();
+
+        // No await from here on, so no other request can insert between the checks and the insert
+        const usernameTaken = db
+            .select({ id: users.id })
+            .from(users)
+            .where(sql`lower(${users.username}) = ${username.toLowerCase()}`)
+            .get();
+        if (usernameTaken) {
+            res.status(409).json({ error: "Username is taken" });
+            return;
+        }
+
+        const emailTaken = db
+            .select({ id: users.id })
+            .from(users)
+            .where(sql`lower(${users.email}) = ${normalizedEmail}`)
+            .get();
+        if (!emailTaken) {
+            db.insert(users)
+                .values({ username, email: normalizedEmail, password: hash })
+                .run();
+        }
+
         res.status(204).end();
     });
 
