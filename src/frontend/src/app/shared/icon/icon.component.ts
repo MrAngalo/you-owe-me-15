@@ -5,6 +5,7 @@ export type IconName =
     | 'arrow-right'
     | 'calc'
     | 'camera'
+    | 'check'
     | 'close'
     | 'instagram'
     | 'itemized'

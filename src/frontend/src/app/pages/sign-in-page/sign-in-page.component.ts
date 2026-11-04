@@ -16,9 +16,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../shared/auth.service';
 import { IconComponent } from '../../shared/icon/icon.component';
-
-// Something@something.tld, with a top-level domain of at least two characters
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+import { EMAIL_PATTERN } from '../../shared/validation';
 
 // "failed": wrong credentials, "unavailable": the server could not answer
 type SignInProblem = 'failed' | 'unavailable';
@@ -27,7 +25,7 @@ type SignInProblem = 'failed' | 'unavailable';
     selector: 'app-sign-in-page',
     imports: [ReactiveFormsModule, RouterLink, IconComponent],
     templateUrl: './sign-in-page.component.html',
-    styleUrl: './sign-in-page.component.scss'
+    styleUrls: ['../auth/auth-styles.scss', './sign-in-page.component.scss']
 })
 export class SignInPageComponent {
     private readonly auth = inject(AuthService);
@@ -44,6 +42,11 @@ export class SignInPageComponent {
     protected readonly busy = signal(false);
     protected readonly problem = signal<SignInProblem | null>(null);
 
+    // Set by the register page when it redirects here. Not kept on reload
+    protected readonly registered = signal(
+        this.router.currentNavigation()?.extras.state?.['registered'] === true
+    );
+
     private readonly emailInput =
         viewChild.required<ElementRef<HTMLInputElement>>('emailInput');
     private readonly passwordInput =
@@ -57,6 +60,7 @@ export class SignInPageComponent {
         }
         this.submitted.set(true);
         this.problem.set(null);
+        this.registered.set(false);
 
         const { email, password } = this.form.controls;
         if (email.invalid) {

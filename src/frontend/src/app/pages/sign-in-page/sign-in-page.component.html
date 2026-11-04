@@ -1,19 +1,25 @@
 <div class="mx-auto grid max-w-md gap-6 px-6 py-12 md:py-20">
     <div>
-        <p
-            class="text-[13px] font-black tracking-[.12em] text-ocean uppercase dark:text-gold"
-        >
-            Account
-        </p>
-        <h1
-            class="mt-1.5 font-heading text-[clamp(2rem,4vw+1rem,2.75rem)] leading-[1.08] font-semibold text-green dark:text-leaf"
-        >
-            Welcome back
-        </h1>
-        <p class="mt-2 text-lg leading-[1.55] dark:text-frost/80">
+        <p class="eyebrow">Account</p>
+        <h1 class="page-title mt-1.5">Welcome back</h1>
+        <p class="page-subtitle">
             Sign in to continue to your receipts and invitations.
         </p>
     </div>
+
+    <!-- REGISTRATION SUCCESS -->
+    @if (registered()) {
+        <div class="banner bg-green/9 dark:bg-leaf/12">
+            <app-icon
+                name="check"
+                class="mt-px size-[22px] text-green dark:text-leaf"
+            />
+            <p>
+                <b class="block">Check your email.</b> After you verify your
+                account. Sign in with your email and password below.
+            </p>
+        </div>
+    }
 
     <!-- SERVER ERRORS -->
 
@@ -50,7 +56,7 @@
     <!-- LOGIN FORM -->
 
     <form
-        class="grid gap-5 rounded-3xl bg-white p-6 shadow-[0_1px_2px_rgb(39_71_78/.06),0_14px_32px_-12px_rgb(39_71_78/.22)] dark:bg-navy dark:shadow-[0_14px_32px_-12px_rgb(0_0_0/.55)]"
+        class="card grid gap-5"
         novalidate
         [formGroup]="form"
         (ngSubmit)="submit()"

@@ -1,0 +1,7 @@
+@reference "#styles";
+
+@layer components {
+    .hint {
+        @apply text-[.9375rem] text-muted dark:text-frost/65;
+    }
+}

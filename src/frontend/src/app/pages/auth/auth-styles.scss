@@ -1,0 +1,53 @@
+@reference "#styles";
+
+/* Shared by the account pages (sign in, register) through styleUrls */
+@layer components {
+    /* Fills the space above the footer, with two soft spots in the background */
+    :host {
+        @apply flex-1
+            bg-[radial-gradient(circle_at_85%_20%,#e7f9b8_0_18%,transparent_18.5%),radial-gradient(circle_at_10%_90%,#dcebf7_0_14%,transparent_14.5%)]
+            dark:bg-[radial-gradient(circle_at_85%_20%,#1c2633_0_18%,transparent_18.5%),radial-gradient(circle_at_10%_90%,#18202b_0_14%,transparent_14.5%)];
+    }
+
+    /* Page head: eyebrow above the title, subtitle below */
+    .eyebrow {
+        @apply text-[13px] font-black tracking-[.12em] text-ocean uppercase dark:text-gold;
+    }
+    .page-title {
+        @apply font-heading text-[clamp(2rem,4vw+1rem,2.75rem)] leading-[1.08] font-semibold text-green dark:text-leaf;
+    }
+    .page-subtitle {
+        @apply mt-2 text-lg leading-[1.55] dark:text-frost/80;
+    }
+
+    .card {
+        @apply rounded-3xl bg-white p-6
+            shadow-[0_1px_2px_rgb(39_71_78/.06),0_14px_32px_-12px_rgb(39_71_78/.22)]
+            dark:bg-navy dark:shadow-[0_14px_32px_-12px_rgb(0_0_0/.55)];
+    }
+
+    .textlink {
+        @apply font-black text-ocean underline underline-offset-4 dark:text-gold;
+    }
+
+    .input {
+        @apply min-h-13 w-full rounded-[14px] border-2 border-line bg-paper px-4 py-3 text-base text-teal
+            transition-colors duration-120 placeholder:text-[#8a9a9f] hover:border-[#b9c9be]
+            focus-visible:border-ocean focus-visible:shadow-none focus-visible:outline-offset-1
+            dark:border-frost/14 dark:bg-midnight dark:text-frost dark:placeholder:text-frost/40
+            dark:hover:border-frost/26 dark:focus-visible:border-gold;
+
+        /* Set from the template once the form has been submitted with this field invalid */
+        &.invalid {
+            @apply border-red bg-[#fff7f6] dark:border-coral dark:bg-coral/6;
+        }
+    }
+    .field-error {
+        @apply text-[.9375rem] font-extrabold text-red dark:text-coral;
+    }
+
+    /* Inline message with a leading icon; colors, icon and text styles are set in the template */
+    .banner {
+        @apply flex items-start gap-3 rounded-[18px] px-[18px] py-4;
+    }
+}

@@ -7,6 +7,12 @@ export interface SignInRequest {
     password: string;
 }
 
+export interface RegisterRequest {
+    username: string;
+    email: string;
+    password: string;
+}
+
 export interface CurrentUser {
     username: string;
 }
@@ -17,6 +23,11 @@ export class AuthService {
 
     signIn(credentials: SignInRequest): Observable<void> {
         return this.http.post<void>('/api/auth/sign-in', credentials);
+    }
+
+    // Fails with a 409 when the username is taken. Does not sign the user in
+    register(account: RegisterRequest): Observable<void> {
+        return this.http.post<void>('/api/auth/register', account);
     }
 
     // Succeeds even when nobody is signed in
