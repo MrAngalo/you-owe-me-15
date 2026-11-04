@@ -21,8 +21,11 @@ import { EMAIL_PATTERN } from '../../../shared/validation';
 // "failed": wrong credentials, "unavailable": the server could not answer
 type SignInProblem = 'failed' | 'unavailable';
 
-// Set by the page that redirected here. "registered": account created, "reset-requested": reset link asked for
-type SignInNotice = 'registered' | 'reset-requested';
+/*
+ * Set by the page that redirected here. "registered": account created, "reset-requested": reset link asked for,
+ * "password-reset": password changed from a reset link
+ */
+type SignInNotice = 'registered' | 'reset-requested' | 'password-reset';
 
 @Component({
     selector: 'app-sign-in-page',

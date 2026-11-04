@@ -37,6 +37,20 @@
         </div>
     }
 
+    <!-- Redirected from the reset password page -->
+    @if (notice() === "password-reset") {
+        <div class="banner bg-green/9 dark:bg-leaf/12">
+            <app-icon
+                name="check"
+                class="mt-px size-[22px] text-green dark:text-leaf"
+            />
+            <p>
+                <b class="block">Password updated.</b> Sign in with your new
+                password below.
+            </p>
+        </div>
+    }
+
     <!-- SERVER ERRORS -->
 
     <!-- Login failed, does not say which field was wrong to not leak user info -->
