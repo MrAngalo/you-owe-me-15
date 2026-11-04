@@ -16,9 +16,10 @@ export interface ResetPasswordUser {
 
 export async function sendResetPasswordEmail(
     mailer: Mailer,
-    user: ResetPasswordUser
+    user: ResetPasswordUser,
+    token: string
 ): Promise<void> {
-    const buttonUrl = "https://youoweme15.com/reset-password";
+    const buttonUrl = `https://youoweme15.com/reset-password?token=${token}`;
 
     await mailer.transporter.sendMail({
         from: process.env.MAIL_FROM,

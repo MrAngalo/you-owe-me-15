@@ -1,10 +1,10 @@
 import bcrypt from "bcryptjs";
 import { createHash, randomBytes } from "crypto";
-import { and, eq, gt, sql } from "drizzle-orm";
+import { and, desc, eq, gt, notInArray, sql } from "drizzle-orm";
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { CookieOptions, Router } from "express";
 import * as schema from "../db/schema";
-import { sessions, users } from "../db/schema";
+import { passwordResets, sessions, users } from "../db/schema";
 import { Mailer } from "../mail/mailer";
 import { sendResetPasswordEmail } from "../mail/reset-password";
 
@@ -20,6 +20,12 @@ const COOKIE_OPTIONS: CookieOptions = {
 
 const SESSION_DAYS = 7;
 const SESSION_MS = SESSION_DAYS * 24 * 60 * 60 * 1000;
+
+const RESET_MINUTES = 30;
+const RESET_MS = RESET_MINUTES * 60 * 1000;
+
+// Valid reset links per user. Requesting another deletes the oldest
+const MAX_RESETS = 3;
 
 /*
  * This is used when an account does not exist, so password validation
@@ -186,13 +192,48 @@ export function createAuthRouter(
         }
 
         const user = db
-            .select({ username: users.username, email: users.email })
+            .select({
+                id: users.id,
+                username: users.username,
+                email: users.email
+            })
             .from(users)
             .where(sql`lower(${users.email}) = ${email.trim().toLowerCase()}`)
             .get();
 
         if (user) {
-            sendResetPasswordEmail(mailer, user).catch((error: Error) =>
+            const token = randomBytes(32).toString("base64url");
+
+            db.insert(passwordResets)
+                .values({
+                    tokenHash: hashToken(token),
+                    userId: user.id,
+                    expiresAt: new Date(Date.now() + RESET_MS)
+                })
+                .run();
+
+            // Keeps the newest valid links and deletes the rest, including expired ones.
+            const kept = db
+                .select({ tokenHash: passwordResets.tokenHash })
+                .from(passwordResets)
+                .where(
+                    and(
+                        eq(passwordResets.userId, user.id),
+                        gt(passwordResets.expiresAt, new Date())
+                    )
+                )
+                .orderBy(desc(passwordResets.createdAt), sql`rowid desc`)
+                .limit(MAX_RESETS);
+            db.delete(passwordResets)
+                .where(
+                    and(
+                        eq(passwordResets.userId, user.id),
+                        notInArray(passwordResets.tokenHash, kept)
+                    )
+                )
+                .run();
+
+            sendResetPasswordEmail(mailer, user, token).catch((error: Error) =>
                 console.warn(
                     `[mail] WARNING: Could not send reset password email: ${error.message}`
                 )
