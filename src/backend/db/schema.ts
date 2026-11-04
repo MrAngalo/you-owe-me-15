@@ -24,3 +24,15 @@ export const sessions = sqliteTable("sessions", {
         .$defaultFn(() => new Date()),
     expiresAt: integer("expires_at", { mode: "timestamp" }).notNull()
 });
+
+// Tokens from reset password emails. Only the hash is stored, the raw token is in the link
+export const passwordResets = sqliteTable("password_resets", {
+    tokenHash: text("token_hash").primaryKey(),
+    userId: text("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date()),
+    expiresAt: integer("expires_at", { mode: "timestamp" }).notNull()
+});
