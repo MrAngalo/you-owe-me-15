@@ -17,6 +17,16 @@ Create a local `.env` from the template and edit the values.
 cp .env.example .env
 ```
 
+## Email
+
+Emails are sent over SMTP. Any SMTP server works, set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` and `MAIL_FROM` in `.env` to match it.
+
+The template defaults to Gmail. If using Gmail, set `SMTP_USER` and `MAIL_FROM` to the sending Gmail address, and `SMTP_PASS` to an app password:
+
+1. Enable 2-Step Verification on the Google account
+2. Create an app password at https://myaccount.google.com/apppasswords
+3. Paste it into `SMTP_PASS` without spaces
+
 ## Development
 
 Run both commands in separate terminals
