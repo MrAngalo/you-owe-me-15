@@ -17,6 +17,11 @@ export interface ForgotPasswordRequest {
     email: string;
 }
 
+export interface ResetPasswordRequest {
+    token: string;
+    password: string;
+}
+
 export interface CurrentUser {
     username: string;
 }
@@ -37,6 +42,18 @@ export class AuthService {
     // Same answer whether or not an account uses the email
     forgotPassword(request: ForgotPasswordRequest): Observable<void> {
         return this.http.post<void>('/api/auth/forgot-password', request);
+    }
+
+    // Fails with a 400 when the reset link is invalid or expired
+    verifyResetToken(token: string): Observable<void> {
+        return this.http.post<void>('/api/auth/reset-password/verify', {
+            token
+        });
+    }
+
+    // Fails with a 400 when the reset link is invalid or expired. Signs out every session
+    resetPassword(request: ResetPasswordRequest): Observable<void> {
+        return this.http.post<void>('/api/auth/reset-password', request);
     }
 
     // Succeeds even when nobody is signed in
