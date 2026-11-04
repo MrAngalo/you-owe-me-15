@@ -51,6 +51,17 @@
         </div>
     }
 
+    <!-- Redirected by the auth interceptor. Never signed in, expired, or ended by a password reset -->
+    @if (notice() === "signed-out") {
+        <div class="banner bg-ocean/8 dark:bg-gold/10">
+            <app-icon
+                name="alert"
+                class="mt-px size-[22px] text-ocean dark:text-gold"
+            />
+            <p><b class="block">You're signed out.</b> Sign in to continue.</p>
+        </div>
+    }
+
     <!-- SERVER ERRORS -->
 
     <!-- Login failed, does not say which field was wrong to not leak user info -->

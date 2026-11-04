@@ -23,9 +23,10 @@ type SignInProblem = 'failed' | 'unavailable';
 
 /*
  * Set by the page that redirected here. "registered": account created, "reset-requested": reset link asked for,
- * "password-reset": password changed from a reset link
+ * "password-reset": password changed from a reset link, "signed-out": a request answered 401
  */
-type SignInNotice = 'registered' | 'reset-requested' | 'password-reset';
+type SignInNotice =
+    'registered' | 'reset-requested' | 'password-reset' | 'signed-out';
 
 @Component({
     selector: 'app-sign-in-page',
