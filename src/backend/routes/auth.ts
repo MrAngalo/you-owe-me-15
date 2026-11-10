@@ -1,14 +1,18 @@
 import bcrypt from "bcryptjs";
-import { createHash, randomBytes } from "crypto";
-import { and, desc, eq, gt, notInArray, sql } from "drizzle-orm";
+import { randomBytes } from "crypto";
+import { and, desc, eq, gt, lte, notInArray, sql } from "drizzle-orm";
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { CookieOptions, Router } from "express";
 import * as schema from "../db/schema";
 import { passwordResets, sessions, users } from "../db/schema";
 import { Mailer } from "../mail/mailer";
 import { sendResetPasswordEmail } from "../mail/reset-password";
-
-const SESSION_COOKIE = "session";
+import {
+    createRequireSession,
+    hashToken,
+    readCookie,
+    SESSION_COOKIE
+} from "../middleware/session";
 
 // Clearing a cookie only works when these match the options it was set with
 const COOKIE_OPTIONS: CookieOptions = {
@@ -43,29 +47,12 @@ const USERNAME_PATTERN = /^\w{3,24}$/;
 // Matches email@example.com, with a top-level domain of at least two characters
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-function hashToken(token: string): string {
-    return createHash("sha256").update(token).digest("hex");
-}
-
-// Finds one cookie in a "name=value; other=value" Cookie header
-function readCookie(
-    header: string | undefined,
-    name: string
-): string | undefined {
-    for (const part of header?.split(";") ?? []) {
-        const [key, ...value] = part.trim().split("=");
-        if (key === name) {
-            return value.join("=");
-        }
-    }
-    return undefined;
-}
-
 export function createAuthRouter(
     db: BetterSQLite3Database<typeof schema>,
     mailer: Mailer
 ): Router {
     const router = Router();
+    const requireSession = createRequireSession(db);
 
     router.post("/sign-in", async (req, res) => {
         const { email, password } = req.body ?? {};
@@ -100,6 +87,9 @@ export function createAuthRouter(
 
         const token = randomBytes(32).toString("base64url");
         const expiresAt = new Date(Date.now() + SESSION_MS);
+
+        // Expired sessions are never valid again, so sign-in clears them for every user
+        db.delete(sessions).where(lte(sessions.expiresAt, new Date())).run();
 
         db.insert(sessions)
             .values({
@@ -324,26 +314,13 @@ export function createAuthRouter(
     });
 
     // Returns the signed-in user, or 401 when the session is missing or expired
-    router.get("/me", (req, res) => {
-        const token = readCookie(req.headers.cookie, SESSION_COOKIE);
-        const user = token
-            ? db
-                  .select({ username: users.username })
-                  .from(sessions)
-                  .innerJoin(users, eq(users.id, sessions.userId))
-                  .where(
-                      and(
-                          eq(sessions.tokenHash, hashToken(token)),
-                          gt(sessions.expiresAt, new Date())
-                      )
-                  )
-                  .get()
-            : undefined;
-
-        if (!user) {
-            res.status(401).json({ error: "Not signed in" });
-            return;
-        }
+    router.get("/me", requireSession, (req, res) => {
+        // Sessions are deleted with their user, so the user always exists here
+        const user = db
+            .select({ username: users.username })
+            .from(users)
+            .where(eq(users.id, req.userId))
+            .get()!;
         res.json(user);
     });
 
