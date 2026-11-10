@@ -317,16 +317,11 @@ export function createAuthRouter(
 
     // Returns the signed-in user, or 401 when the session is missing or expired
     router.get("/me", requireSession, (req, res) => {
-        // A session can outlive its user if the user was deleted without foreign keys on
         const user = db
             .select({ username: users.username })
             .from(users)
             .where(eq(users.id, req.userId!))
             .get();
-        if (!user) {
-            res.status(401).json({ error: "Not signed in" });
-            return;
-        }
         res.json(user);
     });
 

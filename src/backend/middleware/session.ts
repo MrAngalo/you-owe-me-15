@@ -3,7 +3,7 @@ import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { CookieOptions, RequestHandler } from "express";
 import { hashToken } from "../crypto/token";
 import * as schema from "../db/schema";
-import { sessions } from "../db/schema";
+import { sessions, users } from "../db/schema";
 
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -39,7 +39,7 @@ export function readCookie(
     return undefined;
 }
 
-// Answers 401 when the session is missing or expired, otherwise sets req.userId
+// Answers 401 when the session is missing, expired or has no user, otherwise sets req.userId
 export function createRequireSession(
     db: BetterSQLite3Database<typeof schema>
 ): RequestHandler {
@@ -49,6 +49,8 @@ export function createRequireSession(
             ? db
                   .select({ userId: sessions.userId })
                   .from(sessions)
+                  // A session can outlive its user if the user was deleted without foreign keys on
+                  .innerJoin(users, eq(users.id, sessions.userId))
                   .where(
                       and(
                           eq(sessions.tokenHash, hashToken(token)),
