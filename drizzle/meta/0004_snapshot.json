@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "39a9d12c-e944-4786-a525-f480e12324f7",
+  "id": "32269671-8e6c-4806-834f-f656685c7a99",
   "prevId": "6137b232-4fb6-4f1c-b438-9d502688551b",
   "tables": {
     "password_resets": {
@@ -41,6 +41,13 @@
           "name": "password_resets_user_id_idx",
           "columns": [
             "user_id"
+          ],
+          "isUnique": false
+        },
+        "password_resets_expires_at_idx": {
+          "name": "password_resets_expires_at_idx",
+          "columns": [
+            "expires_at"
           ],
           "isUnique": false
         }

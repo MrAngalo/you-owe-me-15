@@ -6,7 +6,7 @@ import { passwordResets, sessions } from "./schema";
 const CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
 
 // Expired sessions and reset links are never valid again, so they are safe to delete
-export function deleteExpired(db: BetterSQLite3Database<typeof schema>): void {
+function deleteExpired(db: BetterSQLite3Database<typeof schema>): void {
     const now = new Date();
     db.delete(sessions).where(lte(sessions.expiresAt, now)).run();
     db.delete(passwordResets).where(lte(passwordResets.expiresAt, now)).run();
