@@ -12,10 +12,21 @@ export function deleteExpired(db: BetterSQLite3Database<typeof schema>): void {
     db.delete(passwordResets).where(lte(passwordResets.expiresAt, now)).run();
 }
 
+// Any errors would crash the server, so warn instead
+function tryDeleteExpired(db: BetterSQLite3Database<typeof schema>): void {
+    try {
+        deleteExpired(db);
+    } catch (error) {
+        console.warn(
+            `[clean] WARNING: Could not delete expired rows: ${error instanceof Error ? error.message : error}`
+        );
+    }
+}
+
 // Runs once now, then every hour while the server is up
 export function scheduleCleanup(
     db: BetterSQLite3Database<typeof schema>
 ): void {
-    deleteExpired(db);
-    setInterval(() => deleteExpired(db), CLEANUP_INTERVAL_MS);
+    tryDeleteExpired(db);
+    setInterval(() => tryDeleteExpired(db), CLEANUP_INTERVAL_MS);
 }

@@ -59,10 +59,7 @@ export function createRequireSession(
             : undefined;
 
         if (!session) {
-            // A dead cookie would otherwise be sent, and looked up, on every request
-            if (token) {
-                res.clearCookie(SESSION_COOKIE, COOKIE_OPTIONS);
-            }
+            // Not cleared, a late response would wipe out the cookie sign-in just set
             res.status(401).json({ error: "Not signed in" });
             return;
         }
