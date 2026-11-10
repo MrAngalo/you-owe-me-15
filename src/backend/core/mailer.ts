@@ -2,18 +2,18 @@ import nodemailer, { Transporter } from "nodemailer";
 import nunjucks from "nunjucks";
 import path from "path";
 
-const loader = new nunjucks.FileSystemLoader(
-    path.join(__dirname, "../templates")
+const TEMPLATES_DIR = path.join(__dirname, "../templates");
+
+export const htmlTemplates = new nunjucks.Environment(
+    new nunjucks.FileSystemLoader(TEMPLATES_DIR),
+    { autoescape: true }
 );
 
-export const htmlTemplates = new nunjucks.Environment(loader, {
-    autoescape: true
-});
-
 // Plain text is not HTML, so escaping would show "&lt;" instead of "<"
-export const textTemplates = new nunjucks.Environment(loader, {
-    autoescape: false
-});
+export const textTemplates = new nunjucks.Environment(
+    new nunjucks.FileSystemLoader(TEMPLATES_DIR),
+    { autoescape: false }
+);
 
 export interface Mailer {
     transporter: Transporter;
