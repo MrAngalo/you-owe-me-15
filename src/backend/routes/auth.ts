@@ -13,13 +13,20 @@ import {
     readCookie,
     SESSION_COOKIE
 } from "../middleware/session";
+import {
+    forgotPasswordBody,
+    registerBody,
+    RESET_ERROR,
+    resetPasswordBody,
+    resetPasswordVerifyBody,
+    signInBody
+} from "../schemas/auth";
 
 const SESSION_DAYS = 7;
 const SESSION_MS = SESSION_DAYS * 24 * 60 * 60 * 1000;
 
 const RESET_MINUTES = 30;
 const RESET_MS = RESET_MINUTES * 60 * 1000;
-const RESET_ERROR = "Reset link is invalid or expired";
 
 // Valid reset links per user. Requesting another deletes the oldest
 const MAX_RESETS = 3;
@@ -29,26 +36,6 @@ const MAX_RESETS = 3;
  * takes as long to compute for existing and non-existing users
  */
 const DUMMY_HASH = bcrypt.hashSync("dummy-password", 10);
-
-// Letters, numbers and !@#$%^&* only. Also rejects an empty password
-const PASSWORD_PATTERN = /^[A-Za-z0-9!@#$%^&*]+$/;
-const PASSWORD_MIN_LENGTH = 8;
-const PASSWORD_ERROR = `Password must be at least ${PASSWORD_MIN_LENGTH} letters, numbers or !@#$%^&*`;
-
-// Rules for new passwords, used by register and reset password
-function isValidPassword(password: unknown): password is string {
-    return (
-        typeof password === "string" &&
-        password.length >= PASSWORD_MIN_LENGTH &&
-        PASSWORD_PATTERN.test(password)
-    );
-}
-
-// 3 to 24 letters, numbers or underscores
-const USERNAME_PATTERN = /^\w{3,24}$/;
-
-// Matches email@example.com, with a top-level domain of at least two characters
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export function createAuthRouter(
     db: BetterSQLite3Database<typeof schema>,
@@ -79,23 +66,17 @@ export function createAuthRouter(
     }
 
     router.post("/sign-in", async (req, res) => {
-        const { email, password } = req.body ?? {};
-        if (typeof email !== "string" || !email.trim()) {
-            res.status(400).json({ error: "Email is required" });
+        const body = signInBody.safeParse(req.body ?? {});
+        if (!body.success) {
+            res.status(400).json({ error: body.error.issues[0].message });
             return;
         }
-        if (typeof password !== "string" || !PASSWORD_PATTERN.test(password)) {
-            res.status(400).json({
-                error: "Password may only contain letters, numbers and !@#$%^&*"
-            });
-            return;
-        }
+        const { email, password } = body.data;
 
-        // Emails are matched without regard to case or surrounding spaces
         const user = db
             .select({ id: users.id, password: users.password })
             .from(users)
-            .where(sql`lower(${users.email}) = ${email.trim().toLowerCase()}`)
+            .where(sql`lower(${users.email}) = ${email}`)
             .get();
 
         const matches = await bcrypt.compare(
@@ -139,25 +120,15 @@ export function createAuthRouter(
      * emails are registered
      */
     router.post("/register", async (req, res) => {
-        const { username, email, password } = req.body ?? {};
-        if (typeof username !== "string" || !USERNAME_PATTERN.test(username)) {
-            res.status(400).json({
-                error: "Username must be 3 to 24 letters, numbers or underscores"
-            });
+        const body = registerBody.safeParse(req.body ?? {});
+        if (!body.success) {
+            res.status(400).json({ error: body.error.issues[0].message });
             return;
         }
-        if (typeof email !== "string" || !EMAIL_PATTERN.test(email.trim())) {
-            res.status(400).json({ error: "Email is invalid" });
-            return;
-        }
-        if (!isValidPassword(password)) {
-            res.status(400).json({ error: PASSWORD_ERROR });
-            return;
-        }
+        const { username, email, password } = body.data;
 
         // Hashed before any lookup, so a taken email takes as long to answer as a new one
         const hash = await bcrypt.hash(password, 10);
-        const normalizedEmail = email.trim().toLowerCase();
 
         // No await from here on, so no other request can insert between the checks and the insert
         const usernameTaken = db
@@ -173,12 +144,10 @@ export function createAuthRouter(
         const emailTaken = db
             .select({ id: users.id })
             .from(users)
-            .where(sql`lower(${users.email}) = ${normalizedEmail}`)
+            .where(sql`lower(${users.email}) = ${email}`)
             .get();
         if (!emailTaken) {
-            db.insert(users)
-                .values({ username, email: normalizedEmail, password: hash })
-                .run();
+            db.insert(users).values({ username, email, password: hash }).run();
         }
 
         res.status(204).end();
@@ -190,11 +159,12 @@ export function createAuthRouter(
      * does not reveal whether the account exists
      */
     router.post("/forgot-password", (req, res) => {
-        const { email } = req.body ?? {};
-        if (typeof email !== "string" || !EMAIL_PATTERN.test(email.trim())) {
-            res.status(400).json({ error: "Email is invalid" });
+        const body = forgotPasswordBody.safeParse(req.body ?? {});
+        if (!body.success) {
+            res.status(400).json({ error: body.error.issues[0].message });
             return;
         }
+        const { email } = body.data;
 
         // Checked before the lookup, so this answer does not reveal whether the account exists
         if (!mailer.enabled) {
@@ -209,7 +179,7 @@ export function createAuthRouter(
                 email: users.email
             })
             .from(users)
-            .where(sql`lower(${users.email}) = ${email.trim().toLowerCase()}`)
+            .where(sql`lower(${users.email}) = ${email}`)
             .get();
 
         if (user) {
@@ -256,8 +226,8 @@ export function createAuthRouter(
 
     // Lets the reset password page check its link before showing the form
     router.post("/reset-password/verify", (req, res) => {
-        const { token } = req.body ?? {};
-        if (typeof token !== "string" || !findValidReset(hashToken(token))) {
+        const body = resetPasswordVerifyBody.safeParse(req.body ?? {});
+        if (!body.success || !findValidReset(hashToken(body.data.token))) {
             res.status(400).json({ error: RESET_ERROR });
             return;
         }
@@ -269,8 +239,10 @@ export function createAuthRouter(
      * and every session is signed out, so anyone else using the account loses access
      */
     router.post("/reset-password", async (req, res) => {
-        const { token, password } = req.body ?? {};
-        const tokenHash = typeof token === "string" ? hashToken(token) : "";
+        const tokenBody = resetPasswordVerifyBody.safeParse(req.body ?? {});
+        const tokenHash = tokenBody.success
+            ? hashToken(tokenBody.data.token)
+            : "";
 
         /*
          * Checked first, so a dead link is reported before any password rule,
@@ -280,12 +252,13 @@ export function createAuthRouter(
             res.status(400).json({ error: RESET_ERROR });
             return;
         }
-        if (!isValidPassword(password)) {
-            res.status(400).json({ error: PASSWORD_ERROR });
+        const body = resetPasswordBody.safeParse(req.body ?? {});
+        if (!body.success) {
+            res.status(400).json({ error: body.error.issues[0].message });
             return;
         }
 
-        const hash = await bcrypt.hash(password, 10);
+        const hash = await bcrypt.hash(body.data.password, 10);
 
         /*
          * Checked again because another request may have used the link while hashing.
