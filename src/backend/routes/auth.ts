@@ -22,15 +22,6 @@ import {
     signInBody
 } from "../schemas/auth";
 
-const SESSION_DAYS = 7;
-const SESSION_MS = SESSION_DAYS * 24 * 60 * 60 * 1000;
-
-const RESET_MINUTES = 30;
-const RESET_MS = RESET_MINUTES * 60 * 1000;
-
-// Valid reset links per user. Requesting another deletes the oldest
-const MAX_RESETS = 3;
-
 /*
  * This is used when an account does not exist, so password validation
  * takes as long to compute for existing and non-existing users
@@ -97,7 +88,8 @@ export function createAuthRouter(
         }
 
         const token = createToken();
-        const expiresAt = new Date(Date.now() + SESSION_MS);
+        // Sessions last 7 days
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
         db.insert(sessions)
             .values({
@@ -189,11 +181,12 @@ export function createAuthRouter(
                 .values({
                     tokenHash: hashToken(token),
                     userId: user.id,
-                    expiresAt: new Date(Date.now() + RESET_MS)
+                    // Reset links last 30 minutes
+                    expiresAt: new Date(Date.now() + 30 * 60 * 1000)
                 })
                 .run();
 
-            // Keeps the newest valid links and deletes the rest, including expired ones.
+            // Keeps the newest 3 valid links and deletes the rest, including expired ones
             const kept = db
                 .select({ tokenHash: passwordResets.tokenHash })
                 .from(passwordResets)
@@ -204,7 +197,7 @@ export function createAuthRouter(
                     )
                 )
                 .orderBy(desc(passwordResets.createdAt), sql`rowid desc`)
-                .limit(MAX_RESETS);
+                .limit(3);
             db.delete(passwordResets)
                 .where(
                     and(

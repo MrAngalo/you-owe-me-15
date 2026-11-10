@@ -7,12 +7,6 @@ export const RESET_ERROR = "Reset link is invalid or expired";
 const PASSWORD_PATTERN = /^[A-Za-z0-9!@#$%^&*]+$/;
 const PASSWORD_MIN_LENGTH = 8;
 
-// 3 to 24 letters, numbers or underscores
-const USERNAME_PATTERN = /^\w{3,24}$/;
-
-// Matches email@example.com, with a top-level domain of at least two characters
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
 /*
  * A schema's error message is also used by its checks, so each field has one message.
  * Emails are trimmed and lowercased, so they are stored and matched without regard
@@ -22,7 +16,8 @@ const validEmail = z
     .string({ error: "Email is invalid" })
     .trim()
     .toLowerCase()
-    .regex(EMAIL_PATTERN);
+    // Matches email@example.com, with a top-level domain of at least two characters
+    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/);
 
 // Rules for new passwords, used by register and reset password
 const newPassword = z
@@ -47,7 +42,7 @@ export const registerBody = z.object({
         .string({
             error: "Username must be 3 to 24 letters, numbers or underscores"
         })
-        .regex(USERNAME_PATTERN),
+        .regex(/^\w{3,24}$/),
     email: validEmail,
     password: newPassword
 });
