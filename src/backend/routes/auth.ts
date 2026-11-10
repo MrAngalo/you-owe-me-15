@@ -8,7 +8,7 @@ import { passwordResets, sessions, users } from "../db/schema";
 import { Mailer } from "../mail/mailer";
 import { sendResetPasswordEmail } from "../mail/reset-password";
 import {
-    COOKIE_OPTIONS,
+    cookieOptions,
     createRequireSession,
     readCookie,
     SESSION_COOKIE
@@ -127,7 +127,7 @@ export function createAuthRouter(
             .run();
 
         res.cookie(SESSION_COOKIE, token, {
-            ...COOKIE_OPTIONS,
+            ...cookieOptions(),
             expires: expiresAt
         });
         res.status(204).end();
@@ -328,7 +328,7 @@ export function createAuthRouter(
             deleteSession(token);
         }
 
-        res.clearCookie(SESSION_COOKIE, COOKIE_OPTIONS);
+        res.clearCookie(SESSION_COOKIE, cookieOptions());
         res.status(204).end();
     });
 

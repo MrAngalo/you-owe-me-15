@@ -17,13 +17,18 @@ declare global {
 
 export const SESSION_COOKIE = "session";
 
-// Clearing a cookie only works when these match the options it was set with
-export const COOKIE_OPTIONS: CookieOptions = {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/"
-};
+/*
+ * Clearing a cookie only works when these match the options it was set with.
+ * A function, so NODE_ENV is read after index.ts loads .env, not when this module is imported
+ */
+export function cookieOptions(): CookieOptions {
+    return {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/"
+    };
+}
 
 // Finds one cookie in a "name=value; other=value" Cookie header
 export function readCookie(
