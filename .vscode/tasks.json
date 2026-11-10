@@ -47,6 +47,36 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "test:backend",
+            "type": "npm",
+            "script": "test:backend",
+            "isBackground": true,
+            "problemMatcher": [],
+            "presentation": {
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "test:frontend",
+            "type": "npm",
+            "script": "test:frontend",
+            "isBackground": true,
+            "problemMatcher": [],
+            "presentation": {
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "test",
+            "dependsOn": ["test:backend", "test:frontend"],
+            "dependsOrder": "parallel",
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
         }
     ],
     "inputs": [

@@ -7,7 +7,7 @@
         "dev:backend": "npm run copy:static && tsx watch src/backend/index.ts",
         "dev:frontend": "cd src/frontend && npx ng build --watch --configuration development",
         "build": "npm run build:backend && npm run build:frontend && npm run copy:static",
-        "build:backend": "tsc && npm run copy:templates",
+        "build:backend": "tsc -p tsconfig.build.json && npm run copy:templates",
         "build:frontend": "cd src/frontend && npx ng build",
         "copy:static": "node -e \"require('fs').cpSync('src/static','dist/static',{recursive:true})\"",
         "copy:templates": "node -e \"require('fs').cpSync('src/backend/mail/templates','dist/backend/mail/templates',{recursive:true})\"",
@@ -18,6 +18,8 @@
         "db:migrate": "drizzle-kit migrate",
         "db:studio": "drizzle-kit studio",
         "script:createsuperuser": "tsx src/backend/scripts/createsuperuser.ts",
+        "test": "npm run test:backend -- --run && npm run test:frontend -- --watch=false",
+        "test:backend": "vitest",
         "test:frontend": "cd src/frontend && npx ng test"
     },
     "repository": {
@@ -53,6 +55,7 @@
         "prettier": "^3.9.9",
         "tsx": "^4.23.15",
         "typescript": "~6.0",
-        "typescript-eslint": "^8.71.1"
+        "typescript-eslint": "^8.71.1",
+        "vitest": "^5.1.0"
     }
 }
