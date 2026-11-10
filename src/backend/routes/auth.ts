@@ -54,6 +54,13 @@ export function createAuthRouter(
     const router = Router();
     const requireSession = createRequireSession(db);
 
+    // Does nothing when the token has no session
+    function deleteSession(token: string): void {
+        db.delete(sessions)
+            .where(eq(sessions.tokenHash, hashToken(token)))
+            .run();
+    }
+
     router.post("/sign-in", async (req, res) => {
         const { email, password } = req.body ?? {};
         if (typeof email !== "string" || !email.trim()) {
@@ -83,6 +90,12 @@ export function createAuthRouter(
         if (!user || !matches) {
             res.status(401).json({ error: "Incorrect email or password" });
             return;
+        }
+
+        // The new cookie replaces this browser's previous session, so that token is not needed anymore
+        const previous = readCookie(req.headers.cookie, SESSION_COOKIE);
+        if (previous) {
+            deleteSession(previous);
         }
 
         const token = randomBytes(32).toString("base64url");
@@ -329,9 +342,7 @@ export function createAuthRouter(
     router.post("/sign-out", (req, res) => {
         const token = readCookie(req.headers.cookie, SESSION_COOKIE);
         if (token) {
-            db.delete(sessions)
-                .where(eq(sessions.tokenHash, hashToken(token)))
-                .run();
+            deleteSession(token);
         }
 
         res.clearCookie(SESSION_COOKIE, COOKIE_OPTIONS);
