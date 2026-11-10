@@ -1,0 +1,1 @@
+CREATE INDEX `password_resets_expires_at_idx` ON `password_resets` (`expires_at`);

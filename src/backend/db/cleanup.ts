@@ -28,5 +28,6 @@ export function scheduleCleanup(
     db: BetterSQLite3Database<typeof schema>
 ): void {
     tryDeleteExpired(db);
-    setInterval(() => tryDeleteExpired(db), CLEANUP_INTERVAL_MS);
+    // Unref'd so the timer alone does not keep the process running
+    setInterval(() => tryDeleteExpired(db), CLEANUP_INTERVAL_MS).unref();
 }

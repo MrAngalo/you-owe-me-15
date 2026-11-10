@@ -46,6 +46,9 @@ export const passwordResets = sqliteTable(
             .$defaultFn(() => new Date()),
         expiresAt: integer("expires_at", { mode: "timestamp" }).notNull()
     },
-    // Each user has at most a few resets, so expiry needs no index
-    (table) => [index("password_resets_user_id_idx").on(table.userId)]
+    // Resets are deleted by user and by expiry, these avoid scanning the whole table
+    (table) => [
+        index("password_resets_user_id_idx").on(table.userId),
+        index("password_resets_expires_at_idx").on(table.expiresAt)
+    ]
 );
