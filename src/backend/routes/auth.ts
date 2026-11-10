@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
-import { randomBytes } from "crypto";
 import { and, desc, eq, gt, notInArray, sql } from "drizzle-orm";
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { Router } from "express";
+import { createToken, hashToken } from "../crypto/token";
 import * as schema from "../db/schema";
 import { passwordResets, sessions, users } from "../db/schema";
 import { Mailer } from "../mail/mailer";
@@ -10,7 +10,6 @@ import { sendResetPasswordEmail } from "../mail/reset-password";
 import {
     COOKIE_OPTIONS,
     createRequireSession,
-    hashToken,
     readCookie,
     SESSION_COOKIE
 } from "../middleware/session";
@@ -33,6 +32,16 @@ const DUMMY_HASH = bcrypt.hashSync("dummy-password", 10);
 // Letters, numbers and !@#$%^&* only. Also rejects an empty password
 const PASSWORD_PATTERN = /^[A-Za-z0-9!@#$%^&*]+$/;
 const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_ERROR = `Password must be at least ${PASSWORD_MIN_LENGTH} letters, numbers or !@#$%^&*`;
+
+// Rules for new passwords, used by register and reset password
+function isValidPassword(password: unknown): password is string {
+    return (
+        typeof password === "string" &&
+        password.length >= PASSWORD_MIN_LENGTH &&
+        PASSWORD_PATTERN.test(password)
+    );
+}
 
 // 3 to 24 letters, numbers or underscores
 const USERNAME_PATTERN = /^\w{3,24}$/;
@@ -105,7 +114,7 @@ export function createAuthRouter(
             deleteSession(previous);
         }
 
-        const token = randomBytes(32).toString("base64url");
+        const token = createToken();
         const expiresAt = new Date(Date.now() + SESSION_MS);
 
         db.insert(sessions)
@@ -140,14 +149,8 @@ export function createAuthRouter(
             res.status(400).json({ error: "Email is invalid" });
             return;
         }
-        if (
-            typeof password !== "string" ||
-            password.length < PASSWORD_MIN_LENGTH ||
-            !PASSWORD_PATTERN.test(password)
-        ) {
-            res.status(400).json({
-                error: `Password must be at least ${PASSWORD_MIN_LENGTH} letters, numbers or !@#$%^&*`
-            });
+        if (!isValidPassword(password)) {
+            res.status(400).json({ error: PASSWORD_ERROR });
             return;
         }
 
@@ -209,7 +212,7 @@ export function createAuthRouter(
             .get();
 
         if (user) {
-            const token = randomBytes(32).toString("base64url");
+            const token = createToken();
 
             db.insert(passwordResets)
                 .values({
@@ -275,14 +278,8 @@ export function createAuthRouter(
             res.status(400).json({ error: "Reset link is invalid or expired" });
             return;
         }
-        if (
-            typeof password !== "string" ||
-            password.length < PASSWORD_MIN_LENGTH ||
-            !PASSWORD_PATTERN.test(password)
-        ) {
-            res.status(400).json({
-                error: `Password must be at least ${PASSWORD_MIN_LENGTH} letters, numbers or !@#$%^&*`
-            });
+        if (!isValidPassword(password)) {
+            res.status(400).json({ error: PASSWORD_ERROR });
             return;
         }
 

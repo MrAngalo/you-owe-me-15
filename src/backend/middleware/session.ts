@@ -1,7 +1,7 @@
-import { createHash } from "crypto";
 import { and, eq, gt } from "drizzle-orm";
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { CookieOptions, RequestHandler } from "express";
+import { hashToken } from "../crypto/token";
 import * as schema from "../db/schema";
 import { sessions } from "../db/schema";
 
@@ -24,11 +24,6 @@ export const COOKIE_OPTIONS: CookieOptions = {
     secure: process.env.NODE_ENV === "production",
     path: "/"
 };
-
-// Only the hash of a token is stored, so a leaked database cannot be used to sign in
-export function hashToken(token: string): string {
-    return createHash("sha256").update(token).digest("hex");
-}
 
 // Finds one cookie in a "name=value; other=value" Cookie header
 export function readCookie(
