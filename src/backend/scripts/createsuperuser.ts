@@ -1,15 +1,14 @@
 import bcrypt from "bcryptjs";
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
 import path from "path";
 import { createInterface } from "readline/promises";
+import { openDatabase } from "../db/database";
 import { users } from "../db/schema";
 
 const ROOT = path.resolve(__dirname, "../../..");
 
 process.loadEnvFile(path.join(ROOT, ".env"));
 
-const db = drizzle(new Database(path.join(ROOT, process.env.DB_FILE!)));
+const { db } = openDatabase(path.join(ROOT, process.env.DB_FILE!));
 
 async function main() {
     const rl = createInterface({

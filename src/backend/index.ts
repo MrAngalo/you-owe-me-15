@@ -1,10 +1,7 @@
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import express from "express";
-import fs from "fs";
 import path from "path";
-import * as schema from "./db/schema";
+import { scheduleCleanup } from "./db/cleanup";
+import { openDatabase } from "./db/database";
 import { createMailer } from "./mail/mailer";
 import { createAuthRouter } from "./routes/auth";
 
@@ -20,26 +17,14 @@ const PORT = Number(process.env.PORT);
 const STATIC_DIR = path.join(ROOT, "dist/static");
 const WEB_DIR = path.join(ROOT, "dist/frontend");
 const DB_FILE = path.join(ROOT, process.env.DB_FILE!);
-const MIGRATIONS_DIR = path.join(ROOT, "drizzle");
 
-// The data folder is gitignored, so it does not exist on a fresh clone
-fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
+// If a migration fails, this throws and stops the server
+console.log(`[init] Opening database and running migrations...`);
+const { db } = openDatabase(DB_FILE);
+console.log("[init] Database ready");
 
-console.log(`[init] Opening database...`);
-
-const sqlite = new Database(DB_FILE);
-// Write-ahead log: better read/write concurrency, creates .db-wal and .db-shm files
-sqlite.pragma("journal_mode = WAL");
-// SQLite does not enforce foreign keys unless this is on
-sqlite.pragma("foreign_keys = ON");
-console.log("[init] Database opened");
-
-const db = drizzle(sqlite, { schema });
-
-// Applies pending migrations from /drizzle. If it fails, throw and stop the server
-console.log(`[init] Running migrations...`);
-migrate(db, { migrationsFolder: MIGRATIONS_DIR });
-console.log("[init] Migrations complete");
+scheduleCleanup(db);
+console.log("[init] Scheduled cleanup of expired sessions and reset links");
 
 const mailer = createMailer();
 

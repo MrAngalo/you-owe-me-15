@@ -1,32 +1,25 @@
 import bcrypt from "bcryptjs";
-import { randomBytes } from "crypto";
-import { and, desc, eq, gt, lte, notInArray, sql } from "drizzle-orm";
+import { and, desc, eq, gt, notInArray, sql } from "drizzle-orm";
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
-import { CookieOptions, Router } from "express";
+import { Router } from "express";
+import { createToken, hashToken } from "../crypto/token";
 import * as schema from "../db/schema";
 import { passwordResets, sessions, users } from "../db/schema";
 import { Mailer } from "../mail/mailer";
 import { sendResetPasswordEmail } from "../mail/reset-password";
 import {
+    cookieOptions,
     createRequireSession,
-    hashToken,
     readCookie,
     SESSION_COOKIE
 } from "../middleware/session";
-
-// Clearing a cookie only works when these match the options it was set with
-const COOKIE_OPTIONS: CookieOptions = {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/"
-};
 
 const SESSION_DAYS = 7;
 const SESSION_MS = SESSION_DAYS * 24 * 60 * 60 * 1000;
 
 const RESET_MINUTES = 30;
 const RESET_MS = RESET_MINUTES * 60 * 1000;
+const RESET_ERROR = "Reset link is invalid or expired";
 
 // Valid reset links per user. Requesting another deletes the oldest
 const MAX_RESETS = 3;
@@ -40,6 +33,16 @@ const DUMMY_HASH = bcrypt.hashSync("dummy-password", 10);
 // Letters, numbers and !@#$%^&* only. Also rejects an empty password
 const PASSWORD_PATTERN = /^[A-Za-z0-9!@#$%^&*]+$/;
 const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_ERROR = `Password must be at least ${PASSWORD_MIN_LENGTH} letters, numbers or !@#$%^&*`;
+
+// Rules for new passwords, used by register and reset password
+function isValidPassword(password: unknown): password is string {
+    return (
+        typeof password === "string" &&
+        password.length >= PASSWORD_MIN_LENGTH &&
+        PASSWORD_PATTERN.test(password)
+    );
+}
 
 // 3 to 24 letters, numbers or underscores
 const USERNAME_PATTERN = /^\w{3,24}$/;
@@ -53,6 +56,27 @@ export function createAuthRouter(
 ): Router {
     const router = Router();
     const requireSession = createRequireSession(db);
+
+    // Does nothing when the token has no session
+    function deleteSession(token: string): void {
+        db.delete(sessions)
+            .where(eq(sessions.tokenHash, hashToken(token)))
+            .run();
+    }
+
+    // Undefined when the reset link does not exist or has expired
+    function findValidReset(tokenHash: string): { userId: string } | undefined {
+        return db
+            .select({ userId: passwordResets.userId })
+            .from(passwordResets)
+            .where(
+                and(
+                    eq(passwordResets.tokenHash, tokenHash),
+                    gt(passwordResets.expiresAt, new Date())
+                )
+            )
+            .get();
+    }
 
     router.post("/sign-in", async (req, res) => {
         const { email, password } = req.body ?? {};
@@ -85,11 +109,14 @@ export function createAuthRouter(
             return;
         }
 
-        const token = randomBytes(32).toString("base64url");
-        const expiresAt = new Date(Date.now() + SESSION_MS);
+        // The new cookie replaces this browser's previous session, so that token is not needed anymore
+        const previous = readCookie(req.headers.cookie, SESSION_COOKIE);
+        if (previous) {
+            deleteSession(previous);
+        }
 
-        // Expired sessions are never valid again, so sign-in clears them for every user
-        db.delete(sessions).where(lte(sessions.expiresAt, new Date())).run();
+        const token = createToken();
+        const expiresAt = new Date(Date.now() + SESSION_MS);
 
         db.insert(sessions)
             .values({
@@ -100,7 +127,7 @@ export function createAuthRouter(
             .run();
 
         res.cookie(SESSION_COOKIE, token, {
-            ...COOKIE_OPTIONS,
+            ...cookieOptions(),
             expires: expiresAt
         });
         res.status(204).end();
@@ -123,14 +150,8 @@ export function createAuthRouter(
             res.status(400).json({ error: "Email is invalid" });
             return;
         }
-        if (
-            typeof password !== "string" ||
-            password.length < PASSWORD_MIN_LENGTH ||
-            !PASSWORD_PATTERN.test(password)
-        ) {
-            res.status(400).json({
-                error: `Password must be at least ${PASSWORD_MIN_LENGTH} letters, numbers or !@#$%^&*`
-            });
+        if (!isValidPassword(password)) {
+            res.status(400).json({ error: PASSWORD_ERROR });
             return;
         }
 
@@ -192,7 +213,7 @@ export function createAuthRouter(
             .get();
 
         if (user) {
-            const token = randomBytes(32).toString("base64url");
+            const token = createToken();
 
             db.insert(passwordResets)
                 .values({
@@ -236,24 +257,8 @@ export function createAuthRouter(
     // Lets the reset password page check its link before showing the form
     router.post("/reset-password/verify", (req, res) => {
         const { token } = req.body ?? {};
-        if (typeof token !== "string" || !token) {
-            res.status(400).json({ error: "Reset link is invalid or expired" });
-            return;
-        }
-
-        const reset = db
-            .select({ userId: passwordResets.userId })
-            .from(passwordResets)
-            .where(
-                and(
-                    eq(passwordResets.tokenHash, hashToken(token)),
-                    gt(passwordResets.expiresAt, new Date())
-                )
-            )
-            .get();
-
-        if (!reset) {
-            res.status(400).json({ error: "Reset link is invalid or expired" });
+        if (typeof token !== "string" || !findValidReset(hashToken(token))) {
+            res.status(400).json({ error: RESET_ERROR });
             return;
         }
         res.status(204).end();
@@ -265,37 +270,30 @@ export function createAuthRouter(
      */
     router.post("/reset-password", async (req, res) => {
         const { token, password } = req.body ?? {};
-        if (typeof token !== "string" || !token) {
-            res.status(400).json({ error: "Reset link is invalid or expired" });
+        const tokenHash = typeof token === "string" ? hashToken(token) : "";
+
+        /*
+         * Checked first, so a dead link is reported before any password rule,
+         * and a made-up link does not cost a bcrypt hash
+         */
+        if (!findValidReset(tokenHash)) {
+            res.status(400).json({ error: RESET_ERROR });
             return;
         }
-        if (
-            typeof password !== "string" ||
-            password.length < PASSWORD_MIN_LENGTH ||
-            !PASSWORD_PATTERN.test(password)
-        ) {
-            res.status(400).json({
-                error: `Password must be at least ${PASSWORD_MIN_LENGTH} letters, numbers or !@#$%^&*`
-            });
+        if (!isValidPassword(password)) {
+            res.status(400).json({ error: PASSWORD_ERROR });
             return;
         }
 
         const hash = await bcrypt.hash(password, 10);
 
-        // No await from here on, so the link cannot be used twice by requests at the same time
-        const reset = db
-            .select({ userId: passwordResets.userId })
-            .from(passwordResets)
-            .where(
-                and(
-                    eq(passwordResets.tokenHash, hashToken(token)),
-                    gt(passwordResets.expiresAt, new Date())
-                )
-            )
-            .get();
-
+        /*
+         * Checked again because another request may have used the link while hashing.
+         * No await from here on, so the link cannot be used twice
+         */
+        const reset = findValidReset(tokenHash);
         if (!reset) {
-            res.status(400).json({ error: "Reset link is invalid or expired" });
+            res.status(400).json({ error: RESET_ERROR });
             return;
         }
 
@@ -315,12 +313,11 @@ export function createAuthRouter(
 
     // Returns the signed-in user, or 401 when the session is missing or expired
     router.get("/me", requireSession, (req, res) => {
-        // Sessions are deleted with their user, so the user always exists here
         const user = db
             .select({ username: users.username })
             .from(users)
-            .where(eq(users.id, req.userId))
-            .get()!;
+            .where(eq(users.id, req.userId!))
+            .get();
         res.json(user);
     });
 
@@ -328,12 +325,10 @@ export function createAuthRouter(
     router.post("/sign-out", (req, res) => {
         const token = readCookie(req.headers.cookie, SESSION_COOKIE);
         if (token) {
-            db.delete(sessions)
-                .where(eq(sessions.tokenHash, hashToken(token)))
-                .run();
+            deleteSession(token);
         }
 
-        res.clearCookie(SESSION_COOKIE, COOKIE_OPTIONS);
+        res.clearCookie(SESSION_COOKIE, cookieOptions());
         res.status(204).end();
     });
 
