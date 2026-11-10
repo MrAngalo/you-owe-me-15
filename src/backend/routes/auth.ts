@@ -2,25 +2,18 @@ import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { and, desc, eq, gt, notInArray, sql } from "drizzle-orm";
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
-import { CookieOptions, Router } from "express";
+import { Router } from "express";
 import * as schema from "../db/schema";
 import { passwordResets, sessions, users } from "../db/schema";
 import { Mailer } from "../mail/mailer";
 import { sendResetPasswordEmail } from "../mail/reset-password";
 import {
+    COOKIE_OPTIONS,
     createRequireSession,
     hashToken,
     readCookie,
     SESSION_COOKIE
 } from "../middleware/session";
-
-// Clearing a cookie only works when these match the options it was set with
-const COOKIE_OPTIONS: CookieOptions = {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/"
-};
 
 const SESSION_DAYS = 7;
 const SESSION_MS = SESSION_DAYS * 24 * 60 * 60 * 1000;
@@ -59,6 +52,20 @@ export function createAuthRouter(
         db.delete(sessions)
             .where(eq(sessions.tokenHash, hashToken(token)))
             .run();
+    }
+
+    // Undefined when the reset link does not exist or has expired
+    function findValidReset(token: string): { userId: string } | undefined {
+        return db
+            .select({ userId: passwordResets.userId })
+            .from(passwordResets)
+            .where(
+                and(
+                    eq(passwordResets.tokenHash, hashToken(token)),
+                    gt(passwordResets.expiresAt, new Date())
+                )
+            )
+            .get();
     }
 
     router.post("/sign-in", async (req, res) => {
@@ -251,18 +258,7 @@ export function createAuthRouter(
             return;
         }
 
-        const reset = db
-            .select({ userId: passwordResets.userId })
-            .from(passwordResets)
-            .where(
-                and(
-                    eq(passwordResets.tokenHash, hashToken(token)),
-                    gt(passwordResets.expiresAt, new Date())
-                )
-            )
-            .get();
-
-        if (!reset) {
+        if (!findValidReset(token)) {
             res.status(400).json({ error: "Reset link is invalid or expired" });
             return;
         }
@@ -290,20 +286,19 @@ export function createAuthRouter(
             return;
         }
 
+        // Checked before hashing, so a made-up link does not cost a bcrypt hash
+        if (!findValidReset(token)) {
+            res.status(400).json({ error: "Reset link is invalid or expired" });
+            return;
+        }
+
         const hash = await bcrypt.hash(password, 10);
 
-        // No await from here on, so the link cannot be used twice by requests at the same time
-        const reset = db
-            .select({ userId: passwordResets.userId })
-            .from(passwordResets)
-            .where(
-                and(
-                    eq(passwordResets.tokenHash, hashToken(token)),
-                    gt(passwordResets.expiresAt, new Date())
-                )
-            )
-            .get();
-
+        /*
+         * Checked again because another request may have used the link while hashing.
+         * No await from here on, so the link cannot be used twice
+         */
+        const reset = findValidReset(token);
         if (!reset) {
             res.status(400).json({ error: "Reset link is invalid or expired" });
             return;

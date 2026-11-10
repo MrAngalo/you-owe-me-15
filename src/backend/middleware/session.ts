@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 import { and, eq, gt } from "drizzle-orm";
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
-import { RequestHandler } from "express";
+import { CookieOptions, RequestHandler } from "express";
 import * as schema from "../db/schema";
 import { sessions } from "../db/schema";
 
@@ -16,6 +16,14 @@ declare global {
 }
 
 export const SESSION_COOKIE = "session";
+
+// Clearing a cookie only works when these match the options it was set with
+export const COOKIE_OPTIONS: CookieOptions = {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/"
+};
 
 // Only the hash of a token is stored, so a leaked database cannot be used to sign in
 export function hashToken(token: string): string {
@@ -56,6 +64,10 @@ export function createRequireSession(
             : undefined;
 
         if (!session) {
+            // A dead cookie would otherwise be sent, and looked up, on every request
+            if (token) {
+                res.clearCookie(SESSION_COOKIE, COOKIE_OPTIONS);
+            }
             res.status(401).json({ error: "Not signed in" });
             return;
         }
