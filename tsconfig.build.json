@@ -3,5 +3,5 @@
     "compilerOptions": {
         "types": ["node"]
     },
-    "exclude": ["src/backend/**/*.spec.ts"]
+    "exclude": ["src/backend/**/*.spec.ts", "src/backend/testing"]
 }
