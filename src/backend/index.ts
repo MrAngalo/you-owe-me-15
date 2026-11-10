@@ -4,6 +4,7 @@ import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import express from "express";
 import fs from "fs";
 import path from "path";
+import { scheduleCleanup } from "./db/cleanup";
 import * as schema from "./db/schema";
 import { createMailer } from "./mail/mailer";
 import { createAuthRouter } from "./routes/auth";
@@ -40,6 +41,9 @@ const db = drizzle(sqlite, { schema });
 console.log(`[init] Running migrations...`);
 migrate(db, { migrationsFolder: MIGRATIONS_DIR });
 console.log("[init] Migrations complete");
+
+scheduleCleanup(db);
+console.log("[init] Scheduled cleanup of expired sessions and reset links");
 
 const mailer = createMailer();
 

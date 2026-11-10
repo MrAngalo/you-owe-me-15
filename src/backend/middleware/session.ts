@@ -9,8 +9,8 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace Express {
         interface Request {
-            // Set by requireSession, only defined on routes that use it
-            userId: string;
+            // Set by requireSession, undefined on routes that do not use it
+            userId?: string;
         }
     }
 }

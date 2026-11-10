@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
-import { and, desc, eq, gt, lte, notInArray, sql } from "drizzle-orm";
+import { and, desc, eq, gt, notInArray, sql } from "drizzle-orm";
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { CookieOptions, Router } from "express";
 import * as schema from "../db/schema";
@@ -87,9 +87,6 @@ export function createAuthRouter(
 
         const token = randomBytes(32).toString("base64url");
         const expiresAt = new Date(Date.now() + SESSION_MS);
-
-        // Expired sessions are never valid again, so sign-in clears them for every user
-        db.delete(sessions).where(lte(sessions.expiresAt, new Date())).run();
 
         db.insert(sessions)
             .values({
@@ -315,12 +312,16 @@ export function createAuthRouter(
 
     // Returns the signed-in user, or 401 when the session is missing or expired
     router.get("/me", requireSession, (req, res) => {
-        // Sessions are deleted with their user, so the user always exists here
+        // A session can outlive its user if the user was deleted without foreign keys on
         const user = db
             .select({ username: users.username })
             .from(users)
-            .where(eq(users.id, req.userId))
-            .get()!;
+            .where(eq(users.id, req.userId!))
+            .get();
+        if (!user) {
+            res.status(401).json({ error: "Not signed in" });
+            return;
+        }
         res.json(user);
     });
 
