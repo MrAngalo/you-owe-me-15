@@ -1,16 +1,16 @@
-import { createTestDatabase, TestDatabase } from "../testing/database";
 import { scheduleCleanup } from "./cleanup";
+import { AppDatabase, openDatabase } from "./database";
 import { passwordResets, sessions, users } from "./schema";
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 
-let database: TestDatabase;
+let database: AppDatabase;
 let userId: string;
 
 beforeEach(() => {
     vi.useFakeTimers({ now: new Date("2026-11-10T12:00:00Z") });
-    database = createTestDatabase();
+    database = openDatabase(":memory:");
     [{ id: userId }] = database.db
         .insert(users)
         .values({ username: "alice", email: "alice@test.dev", password: "x" })

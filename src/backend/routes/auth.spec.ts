@@ -4,19 +4,19 @@ import express from "express";
 import { Server } from "http";
 import { AddressInfo } from "net";
 import { createToken, hashToken } from "../crypto/token";
+import { AppDatabase, openDatabase } from "../db/database";
 import { passwordResets, sessions, users } from "../db/schema";
 import { Mailer } from "../mail/mailer";
-import { createTestDatabase, TestDatabase } from "../testing/database";
 import { createAuthRouter } from "./auth";
 
 const RESET_ERROR = "Reset link is invalid or expired";
 
-let database: TestDatabase;
+let database: AppDatabase;
 let server: Server;
 let baseUrl: string;
 
 beforeEach(async () => {
-    database = createTestDatabase();
+    database = openDatabase(":memory:");
 
     // None of the tested routes send email
     const mailer = { enabled: false } as Mailer;
