@@ -19,6 +19,7 @@ const SESSION_MS = SESSION_DAYS * 24 * 60 * 60 * 1000;
 
 const RESET_MINUTES = 30;
 const RESET_MS = RESET_MINUTES * 60 * 1000;
+const RESET_ERROR = "Reset link is invalid or expired";
 
 // Valid reset links per user. Requesting another deletes the oldest
 const MAX_RESETS = 3;
@@ -64,13 +65,13 @@ export function createAuthRouter(
     }
 
     // Undefined when the reset link does not exist or has expired
-    function findValidReset(token: string): { userId: string } | undefined {
+    function findValidReset(tokenHash: string): { userId: string } | undefined {
         return db
             .select({ userId: passwordResets.userId })
             .from(passwordResets)
             .where(
                 and(
-                    eq(passwordResets.tokenHash, hashToken(token)),
+                    eq(passwordResets.tokenHash, tokenHash),
                     gt(passwordResets.expiresAt, new Date())
                 )
             )
@@ -256,13 +257,8 @@ export function createAuthRouter(
     // Lets the reset password page check its link before showing the form
     router.post("/reset-password/verify", (req, res) => {
         const { token } = req.body ?? {};
-        if (typeof token !== "string" || !token) {
-            res.status(400).json({ error: "Reset link is invalid or expired" });
-            return;
-        }
-
-        if (!findValidReset(token)) {
-            res.status(400).json({ error: "Reset link is invalid or expired" });
+        if (typeof token !== "string" || !findValidReset(hashToken(token))) {
+            res.status(400).json({ error: RESET_ERROR });
             return;
         }
         res.status(204).end();
@@ -274,18 +270,18 @@ export function createAuthRouter(
      */
     router.post("/reset-password", async (req, res) => {
         const { token, password } = req.body ?? {};
-        if (typeof token !== "string" || !token) {
-            res.status(400).json({ error: "Reset link is invalid or expired" });
+        const tokenHash = typeof token === "string" ? hashToken(token) : "";
+
+        /*
+         * Checked first, so a dead link is reported before any password rule,
+         * and a made-up link does not cost a bcrypt hash
+         */
+        if (!findValidReset(tokenHash)) {
+            res.status(400).json({ error: RESET_ERROR });
             return;
         }
         if (!isValidPassword(password)) {
             res.status(400).json({ error: PASSWORD_ERROR });
-            return;
-        }
-
-        // Checked before hashing, so a made-up link does not cost a bcrypt hash
-        if (!findValidReset(token)) {
-            res.status(400).json({ error: "Reset link is invalid or expired" });
             return;
         }
 
@@ -295,9 +291,9 @@ export function createAuthRouter(
          * Checked again because another request may have used the link while hashing.
          * No await from here on, so the link cannot be used twice
          */
-        const reset = findValidReset(token);
+        const reset = findValidReset(tokenHash);
         if (!reset) {
-            res.status(400).json({ error: "Reset link is invalid or expired" });
+            res.status(400).json({ error: RESET_ERROR });
             return;
         }
 
