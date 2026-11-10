@@ -27,6 +27,9 @@ const newPassword = z
     .min(PASSWORD_MIN_LENGTH)
     .regex(PASSWORD_PATTERN);
 
+/*
+ * POST /sign-in
+ */
 // Looser than register. Any email is looked up, and the password is only checked for its characters
 export const signInBody = z.object({
     email: z.string({ error: "Email is required" }).trim().toLowerCase().min(1),
@@ -37,6 +40,9 @@ export const signInBody = z.object({
         .regex(PASSWORD_PATTERN)
 });
 
+/*
+ * POST /register
+ */
 export const registerBody = z.object({
     username: z
         .string({
@@ -47,8 +53,14 @@ export const registerBody = z.object({
     password: newPassword
 });
 
+/*
+ * POST /forgot-password
+ */
 export const forgotPasswordBody = z.object({ email: validEmail });
 
+/*
+ * POST /reset-password
+ */
 export const resetPasswordVerifyBody = z.object({
     token: z.string({ error: RESET_ERROR })
 });
