@@ -1,7 +1,7 @@
 import { lte } from "drizzle-orm";
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
-import * as schema from "./schema";
-import { passwordResets, sessions } from "./schema";
+import * as schema from "../core/models";
+import { passwordResets, sessions } from "./models";
 
 const CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
 

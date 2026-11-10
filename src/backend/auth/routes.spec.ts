@@ -3,11 +3,11 @@ import { eq } from "drizzle-orm";
 import express from "express";
 import { Server } from "http";
 import { AddressInfo } from "net";
-import { createToken, hashToken } from "../crypto/token";
-import { AppDatabase, openDatabase } from "../db/database";
-import { passwordResets, sessions, users } from "../db/schema";
-import { Mailer } from "../mail/mailer";
-import { createAuthRouter } from "./auth";
+import { createToken, hashToken } from "../core/token";
+import { AppDatabase, openDatabase } from "../core/database";
+import { passwordResets, sessions, users } from "./models";
+import { Mailer } from "../core/mailer";
+import { createAuthRouter } from "./routes";
 
 const RESET_ERROR = "Reset link is invalid or expired";
 

@@ -1,6 +1,6 @@
 import { scheduleCleanup } from "./cleanup";
-import { AppDatabase, openDatabase } from "./database";
-import { passwordResets, sessions, users } from "./schema";
+import { AppDatabase, openDatabase } from "../core/database";
+import { passwordResets, sessions, users } from "./models";
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;

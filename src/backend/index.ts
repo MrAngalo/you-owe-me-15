@@ -1,9 +1,9 @@
 import express from "express";
 import path from "path";
-import { scheduleCleanup } from "./db/cleanup";
-import { openDatabase } from "./db/database";
-import { createMailer } from "./mail/mailer";
-import { createAuthRouter } from "./routes/auth";
+import { scheduleCleanup } from "./auth/cleanup";
+import { createAuthRouter } from "./auth/routes";
+import { openDatabase } from "./core/database";
+import { createMailer } from "./core/mailer";
 
 const app = express();
 

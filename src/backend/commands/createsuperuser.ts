@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
 import path from "path";
 import { createInterface } from "readline/promises";
-import { openDatabase } from "../db/database";
-import { users } from "../db/schema";
+import { users } from "../auth/models";
+import { openDatabase } from "../core/database";
 
 const ROOT = path.resolve(__dirname, "../../..");
 

@@ -1,9 +1,9 @@
 import { and, eq, gt } from "drizzle-orm";
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { CookieOptions, RequestHandler } from "express";
-import { hashToken } from "../crypto/token";
-import * as schema from "../db/schema";
-import { sessions, users } from "../db/schema";
+import { hashToken } from "../core/token";
+import * as schema from "../core/models";
+import { sessions, users } from "./models";
 
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace

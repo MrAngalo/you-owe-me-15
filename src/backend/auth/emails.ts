@@ -1,13 +1,4 @@
-import path from "path";
-import nunjucks from "nunjucks";
-import { Mailer } from "./mailer";
-
-const loader = new nunjucks.FileSystemLoader(path.join(__dirname, "templates"));
-
-const htmlTemplates = new nunjucks.Environment(loader, { autoescape: true });
-
-// Plain text is not HTML, so escaping would show "&lt;" instead of "<"
-const textTemplates = new nunjucks.Environment(loader, { autoescape: false });
+import { htmlTemplates, Mailer, textTemplates } from "../core/mailer";
 
 export interface ResetPasswordUser {
     username: string;

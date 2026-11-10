@@ -27,7 +27,7 @@ The template defaults to Gmail. If using Gmail, set `SMTP_USER` and `MAIL_FROM` 
 2. Create an app password at https://myaccount.google.com/apppasswords
 3. Paste it into `SMTP_PASS` without spaces
 
-Email clients load images from a public URL, so `MAIL_ASSETS_URL` cannot be localhost. Upload the contents of `src/backend/mail/assets/` to a public server, keeping the `img/` folder, and set `MAIL_ASSETS_URL` to the uploaded folder's URL.
+Email clients load images from a public URL, so `MAIL_ASSETS_URL` cannot be localhost. Upload the contents of `src/backend/templates/assets/` to a public server, keeping the `img/` folder, and set `MAIL_ASSETS_URL` to the uploaded folder's URL.
 
 ## Development
 
@@ -47,7 +47,7 @@ npm start
 
 ## Database
 
-After editing `src/backend/db/schema.ts`:
+After editing any `src/backend/*/models.ts`:
 
 ```sh
 npm run db:generate

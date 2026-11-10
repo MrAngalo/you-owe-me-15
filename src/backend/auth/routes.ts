@@ -2,17 +2,17 @@ import bcrypt from "bcryptjs";
 import { and, desc, eq, gt, notInArray, sql } from "drizzle-orm";
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { Router } from "express";
-import { createToken, hashToken } from "../crypto/token";
-import * as schema from "../db/schema";
-import { passwordResets, sessions, users } from "../db/schema";
-import { Mailer } from "../mail/mailer";
-import { sendResetPasswordEmail } from "../mail/reset-password";
+import { createToken, hashToken } from "../core/token";
+import * as schema from "../core/models";
+import { passwordResets, sessions, users } from "./models";
+import { Mailer } from "../core/mailer";
+import { sendResetPasswordEmail } from "./emails";
 import {
     cookieOptions,
     createRequireSession,
     readCookie,
     SESSION_COOKIE
-} from "../middleware/session";
+} from "./middleware";
 import {
     forgotPasswordBody,
     registerBody,
@@ -20,7 +20,7 @@ import {
     resetPasswordBody,
     resetPasswordVerifyBody,
     signInBody
-} from "../schemas/auth";
+} from "./schemas";
 
 /*
  * This is used when an account does not exist, so password validation
